@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/conponents/scaning.dart';
 import 'package:secure_kpp/pages/main_page/tabs/ruchnoi_tab/scaning_ruchnoi.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/conponents/transport_scan.dart';
+import 'package:secure_kpp/storage/role_storeage.dart';
 
 class ScanPage extends StatefulWidget {
   final Function(String) toCheck;
@@ -40,11 +41,18 @@ class _ScanPageState extends State<ScanPage> {
           color: Color.fromRGBO(241, 241, 241, 1)
         )
       ),
-      child: Row(
-        children: [
-          scanTypePunkt("Человек","scan"),
-          scanTypePunkt("Транспорт","ruch")
-        ],
+      child: Builder(
+        builder: (context) {
+          if(RoleStorage.role=="special"){
+            return scanTypePunkt("Человек","scan");
+          }
+          return Row(
+            children: [
+              scanTypePunkt("Человек","scan"),
+              scanTypePunkt("Транспорт","Transport"),
+            ],
+          );
+        }
       ),
     );
   }

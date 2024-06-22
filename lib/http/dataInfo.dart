@@ -6,7 +6,7 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:secure_kpp/models/full_info.dart';
-const baseUrl="https://147.45.161.163:3000/api";
+const baseUrl="http://192.168.1.138:3000/api";
 class UserChatInfo{
   String nickname;
   String photoUri;
@@ -65,6 +65,7 @@ class DataInfoHttp{
                 driverPermit: element["driverPermit"],
                 winterDriver: element["winterDriver"], 
                 workInHeight: element["workInHeight"], 
+                workInHeightGroup: element["workInHeightGroup"],
                 GPVPGroup: element["GPVPGroup"], 
                 GNVPGroup: element["GNVPGroup"], 
                 VOZTest: element["VOZTest"], 
@@ -78,6 +79,7 @@ class DataInfoHttp{
                 KP_2: element["KP_2"],
                 PB_11: element["PB_11"],
                 PB_12: element["PB_12"],
+                medicalType:element["medicalType"],
                 lastInputDate: element["lastInputDate"], 
                 lastInputKPP: element["lastInputKPP"], 
                 passStatus: element["passStatus"], 

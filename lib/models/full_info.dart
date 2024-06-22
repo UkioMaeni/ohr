@@ -16,6 +16,7 @@ class FullInfo{
   String? driverPermit;
   String? winterDriver;
   String? workInHeight;
+  String? workInHeightGroup;
   String? GPVPGroup;
   String? GNVPGroup;
   String? VOZTest;
@@ -30,6 +31,7 @@ class FullInfo{
   String? KP_2;
   String? PB_11;
   String? PB_12;
+  String? medicalType;
   String? lastInputDate;
   String? lastInputKPP;
   String? passStatus;
@@ -51,6 +53,7 @@ class FullInfo{
     required this.driverPermit,
     required this.winterDriver,
     required this.workInHeight,
+    required this.workInHeightGroup,
     required this.GPVPGroup,
     required this.GNVPGroup,
     required this.VOZTest,
@@ -64,6 +67,7 @@ class FullInfo{
     required this.KP_2,
     required this.PB_11,
     required this.PB_12,
+    required this.medicalType,
     required this.lastInputDate,
     required this.lastInputKPP,
     required this.passStatus,
@@ -89,6 +93,7 @@ class FullInfo{
       "driverPermit":driverPermit,
       "winterdriver":winterDriver,
       "workinheight":workInHeight,
+      "workInHeightGroup":workInHeightGroup,
       "gpvpgroup":GPVPGroup,
       "gnvpgroup":GNVPGroup,
       "voztest":VOZTest,
@@ -103,10 +108,16 @@ class FullInfo{
       "KP_2":KP_2,
       "PB_11":PB_11,
       "PB_12":PB_12,
+      "medicalType":medicalType,
       "lastinputdate":lastInputDate,
       "lastinputkpp":lastInputKPP,
       "passstatus":passStatus,
       "passdate":passDate,
     };
   }
+}
+
+class FullInfoExtension{
+  
+
 }

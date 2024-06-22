@@ -37,6 +37,7 @@ class SQLLite{
 
             winterdriver TEXT NULL,
             workinheight TEXT NULL,
+            workInHeightGroup TEXT NULL,
             gpvpgroup TEXT NULL,
             gnvpgroup TEXT NULL,
             voztest TEXT NULL,
@@ -52,7 +53,7 @@ class SQLLite{
             KP_2 TEXT NULL,
             PB_11 TEXT NULL,
             PB_12 TEXT NULL,
-
+            medicalType TEXT NULL,
             lastinputdate TEXT NULL,
             lastinputkpp TEXT NULL,
             passstatus TEXT NULL,
@@ -135,6 +136,7 @@ class SQLLite{
         driverPermit: data["driverPermit"], 
         winterDriver: data["winterdriver"], 
         workInHeight: data["workinheight"], 
+        workInHeightGroup: data["workInHeightGroup"],
         GPVPGroup: data["gpvpgroup"], 
         GNVPGroup: data["gnvpgroup"], 
         VOZTest: data["voztest"], 
@@ -148,6 +150,7 @@ class SQLLite{
         KP_2: data["KP_2"],
         PB_11: data["PB_11"],
         PB_12: data["PB_12"], 
+        medicalType: data["medicalType"],
         lastInputDate: data["lastinputdate"], 
         lastInputKPP: data["lastinputkpp"], 
         passStatus: data["passstatus"], 

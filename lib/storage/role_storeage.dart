@@ -7,10 +7,11 @@ class RoleStorage{
       refresh ??= "no";
       return  refresh;
   }
-  setRole(String role) async {
+  Future<String> setRole(String role) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
       await  prefs.setString("role",role);
       return  role;
   }
+  static String role="";
 }
 

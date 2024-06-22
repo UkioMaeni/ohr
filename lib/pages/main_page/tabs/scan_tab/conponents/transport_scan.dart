@@ -29,15 +29,12 @@ class _ScanTransportPageState extends State<ScanTransportPage> {
  
 
 
-  void showModal(int indexpeople){
-    String people="";
-    if(indexpeople==-2) people="Автомобиль";
-    if(indexpeople==-1) people="Водитель";
-    if(indexpeople>=0) people="${indexpeople+1} Пассажир";
+  void showModal(){
+
     showDialog(
       context: context, 
       builder: (context) {
-        return ScanSelf(currentPeople: people,);
+        return ScanSelf(currentPeople: "",);
       },
     );
   }
@@ -57,6 +54,175 @@ class _ScanTransportPageState extends State<ScanTransportPage> {
     return  Expanded(
                 child: ListView(
                   children: [
+                    Column(
+                      children: [
+                        Text(
+                          "Автомобиль",
+                          style: TextStyle(
+                            fontFamily: "No__",
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500
+                          ),
+                        ),
+                        Container(
+                          height: 80,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 2
+                            )
+                          ),
+                          child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Icon(Icons.car_repair,size: 40)
+                                    ),
+                                    Expanded(
+                                      child: Observer(
+                                        builder: (context) {
+                                          if(transportStore.driverInfo==null){
+                                            return Container(
+                                              margin: EdgeInsets.symmetric(vertical: 5),
+                                              alignment: Alignment.center,
+                                              decoration: BoxDecoration(
+                                                color: Color.fromRGBO(168, 201, 255, 1),
+                                                borderRadius: BorderRadius.circular(12)
+                                              ),
+                                              child: Text(
+                                                  "Сканировать",
+                                                  style: TextStyle(
+                                                    fontFamily: "No__",
+                                                    fontSize: 20,
+                                                    fontWeight: FontWeight.w500
+                                                  ),
+                                                ),
+                                            );
+                                          }
+                                          return Column();
+                                        },
+                                      )
+                                    ),
+                                    SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Icon(Icons.close,color: const Color.fromARGB(255, 196, 62, 53),size: 40,),
+                                    ),
+                                    
+                                  ],
+                                ),
+                        )
+                      ],
+                    ),
+    //////////////////////авто
+                       Column(
+                      children: [
+                        Text(
+                          "Водитель",
+                          style: TextStyle(
+                            fontFamily: "No__",
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500
+                          ),
+                        ),
+                        Container(
+                          height: 80,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: Colors.black,
+                              width: 2
+                            )
+                          ),
+                          child: Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Icon(Icons.person_4,size: 40)
+                                    ),
+                                    Expanded(
+                                      child: Observer(
+                                        builder: (context) {
+                                          if(transportStore.driverInfo==null){
+                                            return GestureDetector(
+                                              onTap: () {
+                                                transportStore.currentPeople="Водитель";
+                                                showModal();
+                                              },
+                                              child: Container(
+                                                margin: EdgeInsets.symmetric(vertical: 5),
+                                                alignment: Alignment.center,
+                                                decoration: BoxDecoration(
+                                                  color: Color.fromRGBO(168, 201, 255, 1),
+                                                  borderRadius: BorderRadius.circular(12)
+                                                ),
+                                                child: Text(
+                                                    "Сканировать",
+                                                    style: TextStyle(
+                                                      fontFamily: "No__",
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.w500
+                                                    ),
+                                                  ),
+                                              ),
+                                            );
+                                          }
+                                          
+                                          if(transportStore.driverInfo!.error.isNotEmpty){
+                                            return Container(
+                                              margin: EdgeInsets.symmetric(vertical: 5),
+                                                alignment: Alignment.center,
+                                                decoration: BoxDecoration(
+                                                  color: Color.fromARGB(255, 221, 118, 111),
+                                                  borderRadius: BorderRadius.circular(12)
+                                                ),
+                                                child: Builder(
+                                                  builder: (context) {
+                                                    if(transportStore.driverInfo!.fullInfo==null){
+                                                      return Text(
+                                                              transportStore.driverInfo!.documentNumber,
+                                                              style: TextStyle(
+                                                                fontFamily: "No__",
+                                                                fontSize: 20,
+                                                                color: Colors.white,
+                                                                fontWeight: FontWeight.w500
+                                                              ),
+                                                            );
+                                                        
+                                                    }
+                                                    return    Text(
+                                                              (transportStore.driverInfo!.fullInfo!.fullName??"")+"\n"+
+                                                              transportStore.driverInfo!.documentNumber,
+                                                              style: TextStyle(
+                                                                fontFamily: "No__",
+                                                                fontSize: 20,
+                                                                color: Colors.white,
+                                                                fontWeight: FontWeight.w500
+                                                              ),
+                                                            ); 
+                                                  },
+                                                ),
+                                            );
+                                          }
+                                          return Column(
+                                            children: [],
+                                          );
+                                        },
+                                      )
+                                    ),
+                                    SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: Icon(Icons.close,color: const Color.fromARGB(255, 196, 62, 53),size: 40,),
+                                    ),
+                                    
+                                  ],
+                                ),
+                        )
+                      ],
+                    ),
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -73,7 +239,7 @@ class _ScanTransportPageState extends State<ScanTransportPage> {
                               GestureDetector(
                                 onTap: (){
                                   transportStore.currentPeople="Автомобиль";
-                                  showModal(-2);
+                                  showModal();
                                 },
                                 child: Container(
                                     width: 120,
@@ -106,7 +272,7 @@ class _ScanTransportPageState extends State<ScanTransportPage> {
                                     onTap: (){
                                       if(driver==null){
                                         transportStore.currentPeople="Водитель";
-                                        showModal(-1);
+                                        showModal();
                                       }else{
                                         showInfo(driver);
                                       }
@@ -314,7 +480,7 @@ class _ScanTransportPageState extends State<ScanTransportPage> {
                                           ),
                                         ),
                                         GestureDetector(
-                                          onTap: ()=>showModal(i),
+                                          onTap: ()=>showModal(),
                                           child: Container(
                                                   width: 120,
                                                   height: 120,

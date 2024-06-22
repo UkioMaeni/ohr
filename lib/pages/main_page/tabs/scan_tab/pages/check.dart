@@ -8,6 +8,19 @@ import 'package:secure_kpp/models/jurnal.dart';
 import 'package:secure_kpp/storage/role_storeage.dart';
 import 'package:secure_kpp/store/store.dart';
 import 'package:intl/intl.dart';
+
+class DateWithInfo{
+  String date;
+  String name;
+  String signal;
+  DateWithInfo({
+    required this.date,
+    required this.name,
+    required this.signal
+  });
+}
+
+
 class CheckPage extends StatefulWidget {
   final String documentNumber;
   final Function() toScan;
@@ -34,6 +47,7 @@ class _CheckPageState extends State<CheckPage> {
       setState(() {
         info=result;
       });
+      parsedInfo(result);
     }else{
       errors.add("Не найдено");      
     }
@@ -41,6 +55,134 @@ class _CheckPageState extends State<CheckPage> {
       finding=false;
     });
   }
+
+  String fullSignal="grey";
+
+
+  List<String> professionals=[];
+  List<String> VOZprofessionals=[];
+  List<DateWithInfo> dateWithInfo=[];
+  List<DateWithInfo> otherData=[];
+  List<DateWithInfo> karkas=[];
+  DateWithInfo? passDate;
+  DateWithInfo? passStatus;
+  DateWithInfo?  lastDate;
+  String lastKpp="Нет данных";
+  String lastVector="Нет данных";
+  parsedInfo(FullInfo info)async{
+    fullSignal="green";
+    if(info.professionals!=null){
+      professionals= info.professionals!.split("/");
+    }
+    if(info.VOZProfessional!=null){
+      VOZprofessionals=info.VOZProfessional!.split("/");
+    }
+    
+    dateWithInfo.add(dateParserWithSignal(info.medical,"Медицинский осмотр"));
+    print(info.medical.toString()+"///////////");
+    dateWithInfo.add(dateParserWithSignal(info.promSecure,"Промышленная безопасность"));
+    dateWithInfo.add(dateParserWithSignal(info.infoSecure,"Поргружение в производственную безопасность"));
+    dateWithInfo.add(dateParserWithSignal(info.workSecure,"Охрана труда"));
+    dateWithInfo.add(dateParserWithSignal(info.medicalHelp,"Первая помощь"));
+    dateWithInfo.add(dateParserWithSignal(info.fireSecure,"Противопожарная безопасность"));
+    dateWithInfo.add(dateParserWithSignal(info.electroSecure,"Электробезопасность"));
+    dateWithInfo.add(dateParserWithSignal(info.winterDriver,"Защитное зимнее вождение"));
+    dateWithInfo.add(dateParserWithSignal(info.workInHeight,"ВЫСОТА"));
+    
+    dateWithInfo.add(dateParserWithSignal(info.VOZTest,"Дата ВОЗ"));
+    dateWithInfo.add(dateParserWithSignal(info.fireSecure,"Противопожарная безопасность"));
+    dateWithInfo.add(DateWithInfo(date: info.promSecureOblast??"Данные отстутствуют",name:"Промышленная безопасность\n(области аттестации)",signal: info.promSecureOblast==null?"grey":"green"));
+    dateWithInfo.add(DateWithInfo(date: info.electroSecureGroup??"Данные отстутствуют",name:"Электробезопасность(группа)",signal: info.electroSecureGroup==null?"grey":"green"));
+    dateWithInfo.forEach((element) { 
+      if(element.signal=="red"){
+        fullSignal="red";
+      }
+    });
+    otherData.add(DateWithInfo(date: info.driverPermit??"Данные отстутствуют",name:"Право управления ТС",signal: info.driverPermit==null?"grey":"green"));
+    otherData.add(DateWithInfo(date: info.workInHeightGroup??"Данные отстутствуют",name:"ВЫСОТА(группа)",signal: info.workInHeightGroup==null?"grey":"green"));
+
+    otherData.add(dateParserWithSignal(info.GPVPGroup,"ГПВП - Бригады ТКРС/ТРС "));
+    otherData.add(dateParserWithSignal(info.GNVPGroup,"ГНВП - Бригады бурения"));
+    otherData.forEach((element) { 
+      if(element.signal=="red"){
+        fullSignal="red";
+      }
+    });
+    karkas.add(DateWithInfo(date: info.burAndVSR??"Данные отстутствуют",name:"Бурение и ВСР",signal: info.burAndVSR==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.KSAndCMP??"Данные отстутствуют",name:"КС и СМР",signal: info.KSAndCMP==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.transport??"Данные отстутствуют",name:"Транспорт",signal: info.transport==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.energy??"Данные отстутствуют",name:"Энергетика",signal: info.energy==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.GT??"Данные отстутствуют",name:"ГТ",signal: info.GT==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.PPDU??"Данные отстутствуют",name:"ППДУ",signal: info.PPDU==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.CA??"Данные отстутствуют",name:"ЦА",signal: info.CA==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.KP_2??"Данные отстутствуют",name:"КП-2",signal: info.KP_2==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.PB_11??"Данные отстутствуют",name:"РВ.11",signal: info.PB_11==null?"grey":"green"));
+    karkas.add(DateWithInfo(date: info.PB_12??"Данные отстутствуют",name:"РВ.12",signal: info.PB_12==null?"grey":"green"));
+    karkas.forEach((element) { 
+      if(element.signal=="red"){
+        fullSignal="red";
+      }
+    });
+    passDate=dateParserWithSignal(info.passDate,"Срок действия пропуска",);
+    if(passDate!.signal=="red"){
+      fullSignal="red";
+    }
+    String passSignal="grey";
+    if(info.passStatus!=null&&info.passStatus!.trim()=="НЕ ДОПУЩЕН") passSignal="red";
+    if(info.passStatus!=null&&info.passStatus!.trim()=="ДОПУЩЕН") passSignal="green";
+    passStatus=DateWithInfo(date: info.passStatus??"Данные отсутствуют",name:"Статус пропуска",signal: passSignal);
+    if(passStatus!.signal=="red"){
+      fullSignal="red";
+    }
+    lastDate=dateParserWithSignal(info.lastInputDate,""); 
+    if(info.lastInputKPP!=null){
+      final infoVector= info.lastInputKPP!.split(" ");
+      if(infoVector.length==2){
+        lastKpp=infoVector[0];
+        lastVector=infoVector[1];
+      }
+    }
+    
+  }
+
+
+  DateWithInfo dateParserWithSignal(String? date,String descript){
+    if(date==null){
+      return DateWithInfo(date: "Данные отсутствуют", name: descript, signal: 'grey');
+    }
+    print(date);
+    final splitDate=date.split("/");
+    if(splitDate.length<3){
+      return  DateWithInfo(date: "Неверная дата", name: descript, signal: 'grey');
+    }
+    splitDate[2]="20"+splitDate[2];
+    date= splitDate.join(".");
+    print(date);
+    DateTime currentDate=DateTime.now();
+    if(date.isEmpty||date=="-"||date==" "){
+      return DateWithInfo(date: "Данные отсутствуют", name: descript, signal: 'grey');
+    }
+    DateTime? parse;
+    try {
+      parse=DateFormat("MM.dd.yyyy").parse(date);
+      // print(parse.day);
+      // print(parse.month);
+      //parse=DateTime.parse(date);
+    } catch (e) {
+      print(e);
+    }
+    if(parse==null){
+      return DateWithInfo(date: "Неверный формат даты", name: descript, signal: 'grey');
+    }
+    String formatedDate = DateFormat("dd.MM.yyyy").format(parse);
+    if(currentDate.difference(parse).inDays<=30&&currentDate.difference(parse).inDays>=0){
+      return DateWithInfo(date: formatedDate, name: descript, signal: 'yellow');
+    }else if(parse.isBefore(currentDate)){
+      return DateWithInfo(date: formatedDate, name: descript, signal: 'red');
+    }
+    return DateWithInfo(date: formatedDate, name: descript, signal: 'green');
+  }
+
   @override
   void initState() {
     findDocument();
@@ -93,139 +235,138 @@ class _CheckPageState extends State<CheckPage> {
                             child: CircularProgressIndicator(),
                           );
                         }else{
-                          return Column(
-                            children: [
-                              SizedBox(height: 60,),
-                              personInfo(),
-                              SizedBox(height: 32,),
-                              statusChecked(),
-                              Builder(
-                                builder: (context) {
-                                  if(role.contains("kpp")){
-                                    return Column(
-                                      children: [
-                                        SizedBox(height: 32,),
-                                        actionButton(
-                                          "Вход",
-                                          Color.fromRGBO(6, 203, 73, 1),
-                                          ()async{
-                                            final dateValues=parseDate();
-                                            final jurnal= Jurnal(
-                                              kpp: appStore.kpp, 
-                                              date: dateValues[0], 
-                                              time: dateValues[1], 
-                                              numberPassTS: null, 
-                                              numberPassDriver: null, 
-                                              numberPassPassanger: widget.documentNumber, 
-                                              inputObject: null, 
-                                              outputObject: "ДА"
-                                            );
-                                            await dataBase.insertJurnal(jurnal);
-                                            widget.toScan();
-                                          }
-                                        ),
-                                        SizedBox(height: 24,),
-                                        actionButton(
-                                          "Выход",
-                                          Color.fromRGBO(59, 130, 246, 1),
-                                          ()async{
-
-                                            final dateValues=parseDate();
-                                            final jurnal= Jurnal(
-                                              kpp: appStore.kpp, 
-                                              date: dateValues[0], 
-                                              time: dateValues[1], 
-                                              numberPassTS: null, 
-                                              numberPassDriver: null, 
-                                              numberPassPassanger: widget.documentNumber, 
-                                              inputObject: null, 
-                                              outputObject: "ДА"
-                                            );
-                                            await dataBase.insertJurnal(jurnal);
-                                            widget.toScan();
-                                          }
-                                        ),
-                                        SizedBox(height: 30),
-                                        errors.isEmpty?SizedBox.shrink():
-                                          Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    requiredAction=!requiredAction;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  width: 25,
-                                                  height: 25,
-                                                  padding: EdgeInsets.all(3),
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: Colors.black
-                                                    ),
-                                                    borderRadius: BorderRadius.circular(25)
-                                                  ),
-                                                  alignment: Alignment.center,
+                          return SingleChildScrollView(
+                            child: Column(
+                              children: [
+                                SizedBox(height: 60,),
+                                personInfo(),
+                                SizedBox(height: 32,),
+                                //statusChecked(),
+                                Builder(
+                                  builder: (context) {
+                                    if(role.contains("kpp")){
+                                      return Column(
+                                        children: [
+                                          SizedBox(height: 32,),
+                                          actionButton(
+                                            "Вход",
+                                            Color.fromRGBO(6, 203, 73, 1),
+                                            ()async{
+                                              final dateValues=parseDate();
+                                              final jurnal= Jurnal(
+                                                kpp: appStore.kpp, 
+                                                date: dateValues[0], 
+                                                time: dateValues[1], 
+                                                numberPassTS: null, 
+                                                numberPassDriver: null, 
+                                                numberPassPassanger: widget.documentNumber, 
+                                                inputObject: null, 
+                                                outputObject: "ДА"
+                                              );
+                                              await dataBase.insertJurnal(jurnal);
+                                              widget.toScan();
+                                            }
+                                          ),
+                                          SizedBox(height: 24,),
+                                          actionButton(
+                                            "Выход",
+                                            Color.fromRGBO(59, 130, 246, 1),
+                                            ()async{
+                            
+                                              final dateValues=parseDate();
+                                              final jurnal= Jurnal(
+                                                kpp: appStore.kpp, 
+                                                date: dateValues[0], 
+                                                time: dateValues[1], 
+                                                numberPassTS: null, 
+                                                numberPassDriver: null, 
+                                                numberPassPassanger: widget.documentNumber, 
+                                                inputObject: null, 
+                                                outputObject: "ДА"
+                                              );
+                                              await dataBase.insertJurnal(jurnal);
+                                              widget.toScan();
+                                            }
+                                          ),
+                                          SizedBox(height: 30),
+                                          errors.isEmpty?SizedBox.shrink():
+                                            Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      requiredAction=!requiredAction;
+                                                    });
+                                                  },
                                                   child: Container(
+                                                    width: 25,
+                                                    height: 25,
+                                                    padding: EdgeInsets.all(3),
                                                     decoration: BoxDecoration(
-                                                      color: requiredAction?Color.fromRGBO(59, 130, 246, 1):Colors.white,
+                                                      border: Border.all(
+                                                        color: Colors.black
+                                                      ),
                                                       borderRadius: BorderRadius.circular(25)
                                                     ),
-                                                    
+                                                    alignment: Alignment.center,
+                                                    child: Container(
+                                                      decoration: BoxDecoration(
+                                                        color: requiredAction?Color.fromRGBO(59, 130, 246, 1):Colors.white,
+                                                        borderRadius: BorderRadius.circular(25)
+                                                      ),
+                                                      
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              SizedBox(width: 12,),
-                                              Text(
-                                                "Выполнить в  любом случае",
-                                                style: TextStyle(
-                                                  fontFamily: "Inter",
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w600,
+                                                SizedBox(width: 12,),
+                                                Text(
+                                                  "Выполнить в  любом случае",
+                                                  style: TextStyle(
+                                                    fontFamily: "Inter",
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                                 ),
+                                              ],
+                                            )
+                                        ],
+                                      );
+                                    }else if(role.contains("special")){
+                                      if(info==null){
+                                        return Align(
+                                            child: Text(
+                                              "Пропуск не найден",
+                                              style: TextStyle(
+                                                fontFamily: "No__",
+                                                fontSize: 35,
+                                                color: Colors.grey,
+                                                fontWeight: FontWeight.w600
                                               ),
-                                            ],
-                                          )
-                                      ],
-                                    );
-                                  }else if(role.contains("special")){
-                                    if(info==null){
+                                            ),
+                                          );
+                                      }
+                                      return  InfoForSpecoalist(
+                                        professionals:professionals,
+                                        VOZprofessionals:VOZprofessionals,
+                                        dateWithInfo:dateWithInfo,
+                                        otherData:otherData,
+                                        passDate:passDate,
+                                        passStatus:passStatus,
+                                        karkas:karkas,
+                                        lastDate:lastDate,
+                                        lastKpp:lastKpp,
+                                        lastVector:lastVector
+                                      );
+                                        
+                                      
+                                    }else{
                                       return SizedBox.shrink();
                                     }
-                                    return Expanded(
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          children: [
-                                           // itemInfo("Основная профессия",info?.mainProfessional),
-                                            //itemInfo("Вторая профессия",info?.secondProfessional),
-                                            //itemInfo("Третья профессия",info?.firdProfessional),
-                                            //itemInfo("Прочие профессии",info?.otherProfessional),
-                                            itemInfoWithDate("Медосмотр",info?.medical),
-                                            itemInfoWithDate("Пром безопасность",info?.promSecure),
-                                            itemInfoWithDate("Погружение в пром безопасность",info?.medical),
-                                            itemInfoWithDate("Обучение 'Охрана труда'",info?.workSecure),
-                                            itemInfoWithDate("Обучение 'Первая помощь'",info?.medicalHelp),
-                                            itemInfoWithDate("Пожарная безопасность",info?.fireSecure),
-                                            //itemInfoWithDateWithGroup("Группа ЭБ",info?.groupEB),
-                                            itemInfoWithDate("Зимнее защитное вождение",info?.winterDriver),
-                                            itemInfoWithDateWithGroup("Работы на высоте",info?.workInHeight),
-                                            itemInfoWithDate("ГПВП - Бригады ТКРС/ТРС",info?.GPVPGroup),
-                                            itemInfoWithDate("ГНВП - Бригады бурения",info?.GNVPGroup),
-                                            itemInfoWithDate("Прохождение теста ВОЗ",info?.VOZTest),
-                                            itemInfo("Профессии ВОЗ",info?.VOZProfessional),
-                                            itemInfo("Срок действия пропуска",info?.passDate),
-                                            itemInfo("Статус пропуска",info?.passStatus),
-                                          ],
-                                        ),
-                                      ),
-                                    );
-                                  }else{
-                                    return SizedBox.shrink();
-                                  }
-                                },
-                              ),
-                              
-                            ],
+                                  },
+                                ),
+                                
+                              ],
+                            ),
                           );
                         }
                       },
@@ -368,7 +509,7 @@ Widget personInfo(){
     padding: EdgeInsets.only(left: 40,top: 40),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(16),
-      color: errors.length==0?Color.fromRGBO(6, 203, 73, 1):Color.fromRGBO(241, 45, 45, 1)
+      color: fullSignal=="red"?Color.fromRGBO(241, 45, 45, 1):fullSignal=="grey"?Colors.grey:Color.fromRGBO(6, 203, 73, 1)
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,3 +567,391 @@ Widget personInfo(){
 }
 
 //  666666
+
+
+
+class InfoForSpecoalist extends StatefulWidget {
+  final List<String> professionals;
+  final List<String>VOZprofessionals;
+  final List<DateWithInfo> dateWithInfo;
+  final List<DateWithInfo> otherData;
+  final DateWithInfo? passDate;
+  final DateWithInfo? passStatus;
+  final List<DateWithInfo> karkas;
+  final DateWithInfo? lastDate;
+  final String lastKpp;
+  final String lastVector;
+  const InfoForSpecoalist({
+    super.key,
+    required this.professionals,
+    required this.VOZprofessionals,
+    required this.dateWithInfo,
+    required this.otherData,
+    required this.passDate,
+    required this.passStatus,
+    required this.karkas,
+    required this.lastDate,
+    required this.lastKpp,
+    required this.lastVector
+  });
+
+  @override
+  State<InfoForSpecoalist> createState() => _InfoForSpecoalistState();
+}
+
+class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
+
+
+  @override
+  Widget build(BuildContext context) {
+    print(widget.passStatus!.signal);
+    return  Column(
+        children: [
+          Align(
+            alignment: Alignment.center,
+            child: Text(
+            widget.passStatus!.date,
+            style: TextStyle(
+              fontFamily: "Inter",
+              fontSize: 25,
+              fontWeight: FontWeight.w800,
+              color: widget.passStatus!.signal=="grey"? Colors.grey:widget.passStatus!.signal=="red"?Colors.red:widget.passStatus!.signal=="yellow"?Color.fromARGB(255, 221, 225, 31):Colors.green
+            ),
+          ),
+          ),
+          SizedBox(height: 20,),
+          formWrapper(
+            "Срок пропуска",
+            const Color.fromARGB(255, 185, 90, 83),
+              Column(
+                children: [
+                  
+                  Container(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Text(
+                          widget.passDate!.date,
+                          style: TextStyle(
+                            fontFamily: "Inter",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: widget.passDate!.signal=="grey"? Colors.grey:widget.passDate!.signal=="red"?Colors.red:widget.passDate!.signal=="yellow"?Color.fromARGB(255, 221, 225, 31):Colors.green
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                ],
+              )
+          ),
+          SizedBox(height: 20,),
+          formWrapper(
+            "Профессии",
+            const Color.fromARGB(255, 185, 90, 83),
+              Column(
+                children: [
+                  for(var element in widget.professionals)
+                  Container(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Text(
+                          element,
+                          style: TextStyle(
+                            fontFamily: "Inter",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+          ),
+          SizedBox(height: 20,),
+          formWrapper(
+            "Тестирование ВОЗ",
+            const Color.fromARGB(255, 185, 90, 83),
+              Column(
+                children: [
+                  for(var element in widget.VOZprofessionals)
+                  Container(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Text(
+                          element,
+                          style: TextStyle(
+                            fontFamily: "Inter",
+                            fontSize: 14,
+                            fontWeight: FontWeight.w800,
+                            color: Colors.black
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if(widget.VOZprofessionals.isEmpty)
+                  Container(
+                    alignment: Alignment.centerLeft, 
+                    height: 40,
+                    child: Text(
+                      "Нет данных",
+                      style: TextStyle(
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey
+                      ),
+                    ),
+                  ),
+                ],
+              )
+          ),
+          SizedBox(height: 20,),
+          formWrapper(
+            "Аттестации и тесты",
+            const Color.fromARGB(255, 185, 90, 83),
+              Column(
+                children: [
+                  for(var element in widget.dateWithInfo)
+                  Builder(
+                    builder: (context) {
+                      return Container(
+                        height: 40,
+                        child: Row(
+                          children: [
+                            Text(
+                              element.name+"\n"+element.date,
+                              style: TextStyle(
+                                height: 0.9,
+                                fontFamily: "Inter",
+                                fontSize: 14,
+                                fontWeight: FontWeight.w800,
+                                color: element.signal=="grey"? Colors.grey:element.signal=="red"?Colors.red:element.signal=="yellow"?Color.fromARGB(255, 221, 225, 31):Colors.green
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                  ),
+                  if(widget.dateWithInfo.isEmpty)
+                  Container(
+                    alignment: Alignment.centerLeft, 
+                    height: 40,
+                    child: Text(
+                      "Нет данных",
+                      style: TextStyle(
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey
+                      ),
+                    ),
+                  ),
+                ],
+              )
+          ),
+          SizedBox(height: 20,),
+          formWrapper(
+            "Обучения",
+            const Color.fromARGB(255, 185, 90, 83),
+              Column(
+                children: [
+                  for(var element in widget.otherData)
+                  Container(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            element.name+"\n"+element.date,
+                            style: TextStyle(
+                              fontFamily: "Inter",
+                              fontSize: 14,
+                              height: 0.9,
+                              fontWeight: FontWeight.w800,
+                              color: element.signal=="grey"? Colors.grey:element.signal=="red"?Colors.red:Colors.green
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if(widget.otherData.isEmpty)
+                  Container(
+                    alignment: Alignment.centerLeft, 
+                    height: 40,
+                    child: Text(
+                      "Нет данных",
+                      style: TextStyle(
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey
+                      ),
+                    ),
+                  ),
+                ],
+              )
+          ),
+          SizedBox(height: 20,),
+          formWrapper(
+            "Каркас безопасности",
+            const Color.fromARGB(255, 185, 90, 83),
+              Column(
+                children: [
+                  for(var element in widget.karkas)
+                  Container(
+                    height: 40,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            element.name+"\n"+element.date,
+                            style: TextStyle(
+                              fontFamily: "Inter",
+                              fontSize: 14,
+                              height: 0.9,
+                              fontWeight: FontWeight.w800,
+                              color: element.signal=="grey"? Colors.grey:element.signal=="red"?Colors.red:Colors.green
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  if(widget.otherData.isEmpty)
+                  Container(
+                    alignment: Alignment.centerLeft, 
+                    height: 40,
+                    child: Text(
+                      "Нет данных",
+                      style: TextStyle(
+                        fontFamily: "Inter",
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.grey
+                      ),
+                    ),
+                  ),
+                ],
+              )
+          ),
+          SizedBox(height: 20,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Дата последнего\nпрохода:",
+                style: TextStyle(
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black
+                ),
+              ),
+              Text(
+                widget.lastDate?.date??"Ошибка данных",
+                style: TextStyle(
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Направление:",
+                style: TextStyle(
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black
+                ),
+              ),
+              Text(
+                widget.lastVector,
+                style: TextStyle(
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 20,),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "КПП №:",
+                style: TextStyle(
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black
+                ),
+              ),
+              Text(
+                widget.lastKpp,
+                style: TextStyle(
+                  fontFamily: "Inter",
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.black
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 40,),
+        ],
+      
+      
+    );
+  }
+
+Widget formWrapper(String title, Color borderColor,Widget child,){
+  return Column(
+    
+    children: [
+      Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          title,
+          style: TextStyle(
+            fontFamily: "Inter",
+            fontSize: 15,
+            fontWeight: FontWeight.w800,
+            color: Colors.black
+          ),
+        ),
+      ),
+      Container(
+        alignment: Alignment.center,
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: borderColor,
+            width: 2
+          )
+        ),
+        child: child,
+      ),
+    ],
+  );
+}
+
+
+}

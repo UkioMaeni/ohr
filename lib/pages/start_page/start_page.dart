@@ -30,18 +30,20 @@ class _StartPageState extends State<StartPage> {
 
    checkRole()async{
     await dataBase.getPath();
-    // await dataBase.dropDatabase();
+    //await dataBase.dropDatabase();
     await dataBase.createDB();
     await dataBase.checkJurnal();
     await dataBase.search("23217");
     String role=await RoleStorage().getRole();
     int kpp=0;
     if(role.contains("kpp")){
+      RoleStorage.role="kpp";
       int parsedKpp=int.parse(role.split("_")[1]);
       kpp=parsedKpp;
       appStore.kpp=kpp.toString();
      return Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(),));
     }else if(role.contains("special")){
+      RoleStorage.role="special";
       return Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(),));
     }else{
       await Future.delayed(Duration(seconds: 2));
