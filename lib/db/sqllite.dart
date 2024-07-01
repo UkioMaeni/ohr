@@ -1,5 +1,7 @@
+import 'package:intl/intl.dart';
 import 'package:secure_kpp/models/full_info.dart';
 import 'package:secure_kpp/models/jurnal.dart';
+import 'package:secure_kpp/store/store.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 class SQLLite{
@@ -73,7 +75,9 @@ class SQLLite{
             numberPassDriver TEXT NULL, 
             numberPassPassanger TEXT NULL, 
             inputObject TEXT NULL, 
-            outputObject TEXT NULL
+            outputObject TEXT NULL,
+            ttn TEXT NULL,
+            errors TEXT NULL
             )
           '''
       );
@@ -85,7 +89,7 @@ class SQLLite{
   Future<void> insertFullInfo(List<FullInfo> items,Function() completer)async{
     final Database db = await openDatabase(path);
 
-   
+   db.delete("full_info");
     await Future.forEach(items,(element)async {
           await db.insert(
             "full_info",
@@ -94,6 +98,35 @@ class SQLLite{
           );
           completer();
       });
+  }
+
+  Future<void> updateFullInfo(FullInfo items,String vector)async{
+    final Database db = await openDatabase(path);
+    if(vector=="input"){
+      db.update(
+        "full_info", 
+        {
+          "lastinputdate":DateFormat("dd.MM.yyyy").format(DateTime.now()),
+          "lastinputkpp":"Вход "+(appStore.kpp??"<неизв кпп>")
+        },
+        where: "propusknumber = ?",
+        whereArgs: [
+          items.propuskNumber
+        ]
+      );
+    }else{
+      db.update(
+        "full_info", 
+        {
+          "lastinputdate":DateFormat("dd.MM.yyyy").format(DateTime.now()),
+          "lastinputkpp":"Выход "+(appStore.kpp??"<неизв кпп>")
+        },
+        where: "propusknumber = ?",
+        whereArgs: [
+          items.propuskNumber
+        ]
+      );
+    }
   }
 
   
@@ -107,11 +140,14 @@ class SQLLite{
       );
   }
 
-  Future<void> checkJurnal()async{
+  Future<List<Map<String, dynamic>>> checkJurnal()async{
     final Database db = await openDatabase(path);
     final List<Map<String, dynamic>> find = await db.query('jurnal');
     print(find);
+    return find;
   }
+
+
 
   Future<FullInfo?> search(String passNumber)async{
     final Database db = await openDatabase(path);

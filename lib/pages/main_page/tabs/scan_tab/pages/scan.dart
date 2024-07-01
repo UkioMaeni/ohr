@@ -44,11 +44,11 @@ class _ScanPageState extends State<ScanPage> {
       child: Builder(
         builder: (context) {
           if(RoleStorage.role=="special"){
-            return scanTypePunkt("Человек","scan");
+            return scanTypePunkt("Персонал","scan");
           }
           return Row(
             children: [
-              scanTypePunkt("Человек","scan"),
+              scanTypePunkt("Персонал","scan"),
               scanTypePunkt("Транспорт","Transport"),
             ],
           );

@@ -29,7 +29,7 @@ deleteDriver(){
 }
 
 @observable
-ObservableList<InformarionAboutPeople?> peopleInfo=ObservableList<InformarionAboutPeople?>.of([null,null]);
+ObservableList<InformarionAboutPeople?> peopleInfo=ObservableList<InformarionAboutPeople?>.of([null]);
 
 @action
 addPeople(){
@@ -39,10 +39,12 @@ addPeople(){
 
 @action
 updatePeople(InformarionAboutPeople fullInfo){
-  if(_currentPeople=="Водитель"){
+  if(_currentPeople=="Автомобиль"){
+    carInfo=fullInfo;
+  }else if(_currentPeople=="Водитель"){
     driverInfo=fullInfo;
-  }else if(_currentPeople=="Пассажир"){
-
+  }else if(_currentPeople.contains("Пассажир")){
+    peopleInfo.insert(0, fullInfo);
   }
   
 }

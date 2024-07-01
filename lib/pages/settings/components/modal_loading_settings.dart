@@ -28,6 +28,7 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
   void loading()async{
     if(!isLoad){
       isLoad=true;
+      await DataInfoHttp().addJurnalToServer();
       final result=await DataInfoHttp().getFullInfo();
       if(result!=null){
         setState(() {

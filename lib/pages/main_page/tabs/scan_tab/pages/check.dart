@@ -64,6 +64,7 @@ class _CheckPageState extends State<CheckPage> {
   List<DateWithInfo> dateWithInfo=[];
   List<DateWithInfo> otherData=[];
   List<DateWithInfo> karkas=[];
+  List<DateWithInfo> outputErrors=[];
   DateWithInfo? passDate;
   DateWithInfo? passStatus;
   DateWithInfo?  lastDate;
@@ -71,6 +72,19 @@ class _CheckPageState extends State<CheckPage> {
   String lastVector="Нет данных";
   parsedInfo(FullInfo info)async{
     fullSignal="green";
+
+    String passSignal="grey";
+    if(info.passStatus!=null&&info.passStatus!.trim()=="НЕ ДОПУЩЕН") passSignal="red";
+    if(info.passStatus!=null&&info.passStatus!.trim()=="ДОПУЩЕН") passSignal="green";
+    passStatus=DateWithInfo(date: info.passStatus??"Данные отсутствуют",name:"",signal: passSignal);
+    if(passStatus!.signal=="red"){
+      outputErrors.add(passStatus!);
+      fullSignal="red";
+    }
+
+    if(role.contains("kpp")){
+      return;
+    }
     if(info.professionals!=null){
       professionals= info.professionals!.split("/");
     }
@@ -78,33 +92,34 @@ class _CheckPageState extends State<CheckPage> {
       VOZprofessionals=info.VOZProfessional!.split("/");
     }
     
-    dateWithInfo.add(dateParserWithSignal(info.medical,"Медицинский осмотр"));
-    print(info.medical.toString()+"///////////");
-    dateWithInfo.add(dateParserWithSignal(info.promSecure,"Промышленная безопасность"));
-    dateWithInfo.add(dateParserWithSignal(info.infoSecure,"Поргружение в производственную безопасность"));
-    dateWithInfo.add(dateParserWithSignal(info.workSecure,"Охрана труда"));
-    dateWithInfo.add(dateParserWithSignal(info.medicalHelp,"Первая помощь"));
-    dateWithInfo.add(dateParserWithSignal(info.fireSecure,"Противопожарная безопасность"));
-    dateWithInfo.add(dateParserWithSignal(info.electroSecure,"Электробезопасность"));
-    dateWithInfo.add(dateParserWithSignal(info.winterDriver,"Защитное зимнее вождение"));
-    dateWithInfo.add(dateParserWithSignal(info.workInHeight,"ВЫСОТА"));
+    dateWithInfo.add(dateParserWithSignal(info.medical,"Медицинский осмотр",null));
+    dateWithInfo.add(dateParserWithSignal(info.promSecure,"Промышленная безопасность",info.promSecureOblast==null?null:info.promSecureOblast));
+    dateWithInfo.add(dateParserWithSignal(info.infoSecure,"Поргружение в\nпроизводственную безопасность",null));
+    dateWithInfo.add(dateParserWithSignal(info.workSecure,"Охрана труда",null));
+    dateWithInfo.add(dateParserWithSignal(info.medicalHelp,"Первая помощь",null));
+    dateWithInfo.add(dateParserWithSignal(info.fireSecure,"Противопожарная безопасность",null));
+    dateWithInfo.add(dateParserWithSignal(info.electroSecure,"Электробезопасность",info.electroSecureGroup==null?null:info.electroSecureGroup));
+    otherData.add(dateParserWithSignal(info.winterDriver,"Защитное зимнее вождение",null));
+    otherData.add(dateParserWithSignal(info.workInHeight,"ВЫСОТА",info.workInHeightGroup==null?null:info.workInHeightGroup!.trim()));
     
-    dateWithInfo.add(dateParserWithSignal(info.VOZTest,"Дата ВОЗ"));
-    dateWithInfo.add(dateParserWithSignal(info.fireSecure,"Противопожарная безопасность"));
-    dateWithInfo.add(DateWithInfo(date: info.promSecureOblast??"Данные отстутствуют",name:"Промышленная безопасность\n(области аттестации)",signal: info.promSecureOblast==null?"grey":"green"));
-    dateWithInfo.add(DateWithInfo(date: info.electroSecureGroup??"Данные отстутствуют",name:"Электробезопасность(группа)",signal: info.electroSecureGroup==null?"grey":"green"));
+    dateWithInfo.add(dateParserWithSignal(info.VOZTest,"Дата ВОЗ",null));
+    dateWithInfo.add(dateParserWithSignal(info.fireSecure,"Противопожарная безопасность",null));
+    //dateWithInfo.add(DateWithInfo(date: info.promSecureOblast??"Данные отстутствуют",name:"Промышленная безопасность\n(области аттестации)",signal: info.promSecureOblast==null?"grey":"green"));
+    //dateWithInfo.add(DateWithInfo(date: info.electroSecureGroup??"Данные отстутствуют",name:"Электробезопасность(группа)",signal: info.electroSecureGroup==null?"grey":"green"));
     dateWithInfo.forEach((element) { 
       if(element.signal=="red"){
+        outputErrors.add(element);
         fullSignal="red";
       }
     });
-    otherData.add(DateWithInfo(date: info.driverPermit??"Данные отстутствуют",name:"Право управления ТС",signal: info.driverPermit==null?"grey":"green"));
-    otherData.add(DateWithInfo(date: info.workInHeightGroup??"Данные отстутствуют",name:"ВЫСОТА(группа)",signal: info.workInHeightGroup==null?"grey":"green"));
+    dateWithInfo.add(DateWithInfo(date: info.driverPermit??"Данные отстутствуют",name:"Право управления ТС",signal: info.driverPermit==null?"grey":"green"));
+    //otherData.add(DateWithInfo(date: info.workInHeightGroup??"Данные отстутствуют",name:"ВЫСОТА(группа)",signal: info.workInHeightGroup==null?"grey":"green"));
 
-    otherData.add(dateParserWithSignal(info.GPVPGroup,"ГПВП - Бригады ТКРС/ТРС "));
-    otherData.add(dateParserWithSignal(info.GNVPGroup,"ГНВП - Бригады бурения"));
+    otherData.add(dateParserWithSignal(info.GPVPGroup,"ГПВП - Бригады ТКРС/ТРС ",null));
+    otherData.add(dateParserWithSignal(info.GNVPGroup,"ГНВП - Бригады бурения",null));
     otherData.forEach((element) { 
       if(element.signal=="red"){
+        outputErrors.add(element);
         fullSignal="red";
       }
     });
@@ -120,21 +135,17 @@ class _CheckPageState extends State<CheckPage> {
     karkas.add(DateWithInfo(date: info.PB_12??"Данные отстутствуют",name:"РВ.12",signal: info.PB_12==null?"grey":"green"));
     karkas.forEach((element) { 
       if(element.signal=="red"){
+        outputErrors.add(element);
         fullSignal="red";
       }
     });
-    passDate=dateParserWithSignal(info.passDate,"Срок действия пропуска",);
+    passDate=dateParserWithSignal(info.passDate,"Срок действия пропуска",null);
     if(passDate!.signal=="red"){
+      outputErrors.add(passDate!);
       fullSignal="red";
     }
-    String passSignal="grey";
-    if(info.passStatus!=null&&info.passStatus!.trim()=="НЕ ДОПУЩЕН") passSignal="red";
-    if(info.passStatus!=null&&info.passStatus!.trim()=="ДОПУЩЕН") passSignal="green";
-    passStatus=DateWithInfo(date: info.passStatus??"Данные отсутствуют",name:"Статус пропуска",signal: passSignal);
-    if(passStatus!.signal=="red"){
-      fullSignal="red";
-    }
-    lastDate=dateParserWithSignal(info.lastInputDate,""); 
+    
+    lastDate=dateParserWithSignal(info.lastInputDate,"",null); 
     if(info.lastInputKPP!=null){
       final infoVector= info.lastInputKPP!.split(" ");
       if(infoVector.length==2){
@@ -146,7 +157,7 @@ class _CheckPageState extends State<CheckPage> {
   }
 
 
-  DateWithInfo dateParserWithSignal(String? date,String descript){
+  DateWithInfo dateParserWithSignal(String? date,String descript,String? postfix){
     if(date==null){
       return DateWithInfo(date: "Данные отсутствуют", name: descript, signal: 'grey');
     }
@@ -175,12 +186,12 @@ class _CheckPageState extends State<CheckPage> {
       return DateWithInfo(date: "Неверный формат даты", name: descript, signal: 'grey');
     }
     String formatedDate = DateFormat("dd.MM.yyyy").format(parse);
-    if(currentDate.difference(parse).inDays<=30&&currentDate.difference(parse).inDays>=0){
-      return DateWithInfo(date: formatedDate, name: descript, signal: 'yellow');
+    if(parse.difference(currentDate).inDays<=30&&parse.difference(currentDate).inDays>=0){
+      return DateWithInfo(date: formatedDate +(postfix==null?"":"\n(${postfix})"), name: descript, signal: 'yellow');
     }else if(parse.isBefore(currentDate)){
-      return DateWithInfo(date: formatedDate, name: descript, signal: 'red');
+      return DateWithInfo(date: formatedDate+(postfix==null?"":"\n(${postfix})"), name: descript, signal: 'red');
     }
-    return DateWithInfo(date: formatedDate, name: descript, signal: 'green');
+    return DateWithInfo(date: formatedDate+(postfix==null?"":"\n(${postfix})"), name: descript, signal: 'green');
   }
 
   @override
@@ -239,7 +250,7 @@ class _CheckPageState extends State<CheckPage> {
                             child: Column(
                               children: [
                                 SizedBox(height: 60,),
-                                personInfo(),
+                                personInfo(passStatus?.signal??"grey"),
                                 SizedBox(height: 32,),
                                 //statusChecked(),
                                 Builder(
@@ -247,6 +258,48 @@ class _CheckPageState extends State<CheckPage> {
                                     if(role.contains("kpp")){
                                       return Column(
                                         children: [
+                                          if(fullSignal=="grey")
+                                          Align(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                                  "Не найдено",
+                                                  style: TextStyle(
+                                                    fontFamily: "Inter",
+                                                    fontSize: 20,
+                                                    color: Colors.grey,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                          ),
+                                          for(var element in outputErrors)
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                                Text(
+                                                  element.name,
+                                                  style: TextStyle(
+                                                    height: 0.8,
+                                                    fontFamily: "No__",
+                                                    fontSize: 20,
+                                                    color: Colors.red,
+                                                    fontWeight: FontWeight.w500
+                                                  ),
+                                                ),
+                                                Align(
+                                                  alignment: Alignment.center,
+                                                  child: Text(
+                                                    element.date,
+                                                    style: TextStyle(
+                                                      height: 0.8,
+                                                      fontFamily: "No__",
+                                                      fontSize: 20,
+                                                      color: Colors.red,
+                                                      fontWeight: FontWeight.w500
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
                                           SizedBox(height: 32,),
                                           actionButton(
                                             "Вход",
@@ -261,10 +314,43 @@ class _CheckPageState extends State<CheckPage> {
                                                 numberPassDriver: null, 
                                                 numberPassPassanger: widget.documentNumber, 
                                                 inputObject: null, 
-                                                outputObject: "ДА"
+                                                outputObject: "ДА",
+                                                ttn: "",
+                                                errors: outputErrors.join(",")
                                               );
                                               await dataBase.insertJurnal(jurnal);
-                                              widget.toScan();
+                                              
+                                              await showDialog(
+                                                  context: context, builder: (context) {
+                                                    return Dialog(
+                                                      child: SizedBox(
+                                                        height: 170,
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                          child: Column(
+                                                            children: [
+                                                              SizedBox(height: 10,),
+                                                              Text(
+                                                              "Запись добавлена",
+                                                              style: TextStyle(
+                                                                fontFamily: "No__",
+                                                                fontSize: 20,
+                                                                fontWeight: FontWeight.w500
+                                                              ),
+                                                            ),
+                                                            SizedBox(height: 50,),
+                                                            actionButton("ОК", Colors.green, (){
+                                                              Navigator.pop(context);
+                                                            }),
+                                                            SizedBox(height: 10,),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                                widget.toScan();
                                             }
                                           ),
                                           SizedBox(height: 24,),
@@ -282,14 +368,48 @@ class _CheckPageState extends State<CheckPage> {
                                                 numberPassDriver: null, 
                                                 numberPassPassanger: widget.documentNumber, 
                                                 inputObject: null, 
-                                                outputObject: "ДА"
+                                                ttn: "",
+                                                outputObject: "ДА",
+                                                errors: ''
                                               );
                                               await dataBase.insertJurnal(jurnal);
-                                              widget.toScan();
+                                              
+                                              await showDialog(
+                                                  context: context, builder: (context) {
+                                                    return Dialog(
+                                                      child: SizedBox(
+                                                        height: 170,
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                                                          child: Column(
+                                                            children: [
+                                                              SizedBox(height: 10,),
+                                                              Text(
+                                                              "Запись добавлена",
+                                                              style: TextStyle(
+                                                                fontFamily: "No__",
+                                                                fontSize: 20,
+                                                                fontWeight: FontWeight.w500
+                                                              ),
+                                                            ),
+                                                            SizedBox(height: 50,),
+                                                            actionButton("ОК", Colors.green, (){
+                                                              Navigator.pop(context);
+                                                            }),
+                                                            SizedBox(height: 10,),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                                widget.toScan();
                                             }
                                           ),
                                           SizedBox(height: 30),
-                                          errors.isEmpty?SizedBox.shrink():
+                                          
+                                          outputErrors.isEmpty?SizedBox.shrink():
                                             Row(
                                               children: [
                                                 GestureDetector(
@@ -444,7 +564,7 @@ Widget itemInfoWithDateWithGroup(String title, String? data){
   Widget actionButton(String title,Color color,Function() action){
     return GestureDetector(
       onTap: (){
-        if(errors.isEmpty || requiredAction){
+        if(outputErrors.isEmpty || requiredAction){
           action();
         }
       }, 
@@ -453,7 +573,7 @@ Widget itemInfoWithDateWithGroup(String title, String? data){
         alignment: Alignment.center,
         width: double.infinity,
         decoration: BoxDecoration(
-          color:errors.isEmpty || requiredAction?color:color.withAlpha(100),
+          color:outputErrors.isEmpty || requiredAction?color:color.withAlpha(100),
           borderRadius: BorderRadius.circular(12)
         ),
         child: Text(
@@ -502,14 +622,14 @@ Widget itemInfoWithDateWithGroup(String title, String? data){
   }
 
 
-Widget personInfo(){
+Widget personInfo(String signal){
   return Container(
     height: 220,
     width: double.infinity,
     padding: EdgeInsets.only(left: 40,top: 40),
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(16),
-      color: fullSignal=="red"?Color.fromRGBO(241, 45, 45, 1):fullSignal=="grey"?Colors.grey:Color.fromRGBO(6, 203, 73, 1)
+      color: signal=="red"?Color.fromRGBO(241, 45, 45, 1):fullSignal=="grey"?Colors.grey:Color.fromRGBO(6, 203, 73, 1)
     ),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -615,7 +735,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
               fontFamily: "Inter",
               fontSize: 25,
               fontWeight: FontWeight.w800,
-              color: widget.passStatus!.signal=="grey"? Colors.grey:widget.passStatus!.signal=="red"?Colors.red:widget.passStatus!.signal=="yellow"?Color.fromARGB(255, 221, 225, 31):Colors.green
+              color: widget.passStatus!.signal=="grey"? Colors.grey:widget.passStatus!.signal=="red"?Colors.red:widget.passStatus!.signal=="yellow"?Color.fromARGB(255, 255, 208, 0):Colors.green
             ),
           ),
           ),
@@ -631,12 +751,12 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                     child: Row(
                       children: [
                         Text(
-                          widget.passDate!.date,
+                          widget.passDate?.date??"Нет данных",
                           style: TextStyle(
                             fontFamily: "Inter",
                             fontSize: 14,
                             fontWeight: FontWeight.w800,
-                            color: widget.passDate!.signal=="grey"? Colors.grey:widget.passDate!.signal=="red"?Colors.red:widget.passDate!.signal=="yellow"?Color.fromARGB(255, 221, 225, 31):Colors.green
+                            color: widget.passDate!.signal=="grey"? Colors.grey:widget.passDate!.signal=="red"?Colors.red:widget.passDate!.signal=="yellow"?Color.fromARGB(255, 255, 208, 0):Colors.green
                           ),
                         ),
                       ],
@@ -722,7 +842,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                   Builder(
                     builder: (context) {
                       return Container(
-                        height: 40,
+                        height: 50,
                         child: Row(
                           children: [
                             Text(
@@ -732,7 +852,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                                 fontFamily: "Inter",
                                 fontSize: 14,
                                 fontWeight: FontWeight.w800,
-                                color: element.signal=="grey"? Colors.grey:element.signal=="red"?Colors.red:element.signal=="yellow"?Color.fromARGB(255, 221, 225, 31):Colors.green
+                                color: element.signal=="grey"? Colors.grey:element.signal=="red"?Colors.red:element.signal=="yellow"?Color.fromARGB(255, 255, 208, 0):Colors.green
                               ),
                             ),
                           ],
@@ -765,7 +885,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                 children: [
                   for(var element in widget.otherData)
                   Container(
-                    height: 40,
+                    height: 50,
                     child: Row(
                       children: [
                         Expanded(
@@ -786,7 +906,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                   if(widget.otherData.isEmpty)
                   Container(
                     alignment: Alignment.centerLeft, 
-                    height: 40,
+                    height: 50,
                     child: Text(
                       "Нет данных",
                       style: TextStyle(
@@ -808,7 +928,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                 children: [
                   for(var element in widget.karkas)
                   Container(
-                    height: 40,
+                    height: 50,
                     child: Row(
                       children: [
                         Expanded(
@@ -829,7 +949,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                   if(widget.otherData.isEmpty)
                   Container(
                     alignment: Alignment.centerLeft, 
-                    height: 40,
+                    height: 50,
                     child: Text(
                       "Нет данных",
                       style: TextStyle(
@@ -848,7 +968,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Дата последнего\nпрохода:",
+                "Результаты\nпоследнего\nсканирования:",
                 style: TextStyle(
                   fontFamily: "Inter",
                   fontSize: 16,
@@ -881,7 +1001,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
                 ),
               ),
               Text(
-                widget.lastVector,
+                widget.lastVector=="Вход"?"Заехал на объект":widget.lastVector=="Выход"?"Выехал с объекта":widget.lastVector,
                 style: TextStyle(
                   fontFamily: "Inter",
                   fontSize: 16,
@@ -896,7 +1016,7 @@ class _InfoForSpecoalistState extends State<InfoForSpecoalist> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "КПП №:",
+                "КПП:",
                 style: TextStyle(
                   fontFamily: "Inter",
                   fontSize: 16,

@@ -14,8 +14,8 @@ class KppAuthPage extends StatefulWidget {
 
 class _KppAuthPageState extends State<KppAuthPage> {
 
-  final TextEditingController _controller=TextEditingController();
-
+  final TextEditingController login=TextEditingController();
+  final TextEditingController pass=TextEditingController();
   bool error=false;
   bool loading=false;
 
@@ -24,9 +24,10 @@ class _KppAuthPageState extends State<KppAuthPage> {
     setState(() {
       loading=true;
     });
-    final result=await AuthHttp().auth(_controller.text);
+    final result=await AuthHttp().auth(login.text,pass.text);
     if(result==0){
       await RoleStorage().setRole("special");
+      RoleStorage.role="special";
       Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage(),), (route) => false);
     }else{
       setState(() {
@@ -40,7 +41,8 @@ class _KppAuthPageState extends State<KppAuthPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    login.dispose();
+    pass.dispose();
     super.dispose();
   }  
 
@@ -71,7 +73,9 @@ class _KppAuthPageState extends State<KppAuthPage> {
                       ),
                     ),
                     SizedBox(height: 250,),
-                    input(),
+                    input(login,false,"Логин"),
+                    SizedBox(height: 10,),
+                    input(pass,true,"Пароль"),
                     errorState(),
                     button("Войти",auth)
                 ],
@@ -108,9 +112,9 @@ class _KppAuthPageState extends State<KppAuthPage> {
     );
   }
 
-  bool obscureText=false;
+  bool obscureText=true;
 
-  Widget input(){
+  Widget input(TextEditingController _controller,bool secure,String hint){
     return Container(
       height: 56,
       width: double.infinity,
@@ -142,7 +146,7 @@ class _KppAuthPageState extends State<KppAuthPage> {
                 
                 contentPadding: EdgeInsets.only(left: 20,right: 20,bottom: 0,top: 0),
                 border: InputBorder.none,
-                hintText: "Пароль",
+                hintText: hint,
                 hintStyle: TextStyle(
                   fontFamily: "No__",
                   fontSize: 15,
@@ -152,7 +156,7 @@ class _KppAuthPageState extends State<KppAuthPage> {
               ),
             ),
           ),
-          GestureDetector(
+          if(secure)GestureDetector(
             onTapDown: (_) {
               setState(() {
                 obscureText=false;
@@ -163,7 +167,7 @@ class _KppAuthPageState extends State<KppAuthPage> {
                 obscureText=true;
               });
             },
-            child: Container(
+            child:  Container(
               width: 60,
               alignment: Alignment.center,
               child:!obscureText? Icon(Icons.visibility):Icon(Icons.visibility_off)

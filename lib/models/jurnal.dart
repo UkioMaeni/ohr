@@ -7,6 +7,8 @@ class Jurnal{
   String? numberPassPassanger;
   String? inputObject;
   String? outputObject;
+  String? errors;
+  String? ttn;
   Jurnal({
     required this.kpp,
     required this.date,
@@ -16,6 +18,8 @@ class Jurnal{
     required this.numberPassPassanger,
     required this.inputObject,
     required this.outputObject,
+    required this.errors,
+    required this.ttn
   });
 
   Map<String,dynamic> toMap(){
@@ -28,6 +32,8 @@ class Jurnal{
       "numberPassPassanger":numberPassPassanger,
       "inputObject":inputObject,
       "outputObject":outputObject,
+      "ttn":ttn,
+      "errors":errors
     };
   }
 }

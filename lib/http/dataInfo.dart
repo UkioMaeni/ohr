@@ -5,8 +5,9 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
+import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/models/full_info.dart';
-const baseUrl="http://192.168.1.138:3000/api";
+const baseUrl="http://192.168.1.92:3005/api";
 class UserChatInfo{
   String nickname;
   String photoUri;
@@ -22,10 +23,27 @@ class DataInfoHttp{
 
     Dio dio=Dio();
 
+    Future<int> addJurnalToServer()async{
+      try {
+        final info =await dataBase.checkJurnal();
+        await dio.post(
+          "$baseUrl/full",
+          data: {
+            "jurnal":info
+          }
+        );
+        return 0;
+      } catch (e) {
+        return -1;
+      }
+    }
     Future<List<FullInfo>?> getFullInfo()async{
       bool completer=false;
+      
         try {
-          final response = await http.get(Uri.parse("$baseUrl/full"));
+          final response = await http.get(
+            Uri.parse("$baseUrl/full"),
+          );
           print(response.body);
           // Response response= await dio.get(
           // "$baseUrl/full",
