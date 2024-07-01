@@ -6,8 +6,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:secure_kpp/models/full_info.dart';
-const baseUrl="http://192.168.1.92:3005/api";
-
+//const baseUrl="http://192.168.1.92:3005/api";
+const baseUrl="http://147.45.161.163:3005/api";
 
 class AuthHttp{
 
