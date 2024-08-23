@@ -1,17 +1,16 @@
+import 'package:secure_kpp/db/sqllite.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DataInfoStorage{
+
    getCount() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-      String? refresh=  prefs.getString("count");
-      refresh ??= "N/A";
-      return  refresh;
+    count=(await dataBase.checkCount()).toString();
   }
   getLastDate() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
       String? refresh=  prefs.getString("date");
       refresh ??= "N/A";
-      return  refresh;
+      lastDate=refresh;
   }
   setCount(String role) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -23,5 +22,14 @@ class DataInfoStorage{
       await  prefs.setString("date",role);
       return  role;
   }
+  removeLastDate() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+      await  prefs.remove("date");
+      
+  }
+  String? count;
+  String? lastDate;
+
 }
 
+DataInfoStorage dataInfoStorage = DataInfoStorage();

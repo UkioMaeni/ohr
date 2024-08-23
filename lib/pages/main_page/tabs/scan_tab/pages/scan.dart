@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:secure_kpp/pages/main_page/store/transport_store.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/conponents/scaning.dart';
 import 'package:secure_kpp/pages/main_page/tabs/ruchnoi_tab/scaning_ruchnoi.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/conponents/transport_scan.dart';
@@ -16,22 +18,27 @@ class ScanPage extends StatefulWidget {
 class _ScanPageState extends State<ScanPage> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: [
-                 
-                  SizedBox(height: 48,),
-                  scanType(),
-                  SizedBox(height: 32,),
-                  variableScan=="scan"?Scaning(toCheck:widget.toCheck):ScanTransportPage(toCheck: widget.toCheck)
-                ],
-              ),
-            
-          );
+    return Observer(
+      builder: (context) {
+        String navigationType= transportStore.navigationType;
+        return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    children: [
+                     
+                      SizedBox(height: 48,),
+                      scanType(navigationType),
+                      SizedBox(height: 32,),
+                      navigationType=="personal"?Scaning(toCheck:widget.toCheck):ScanTransportPage(toCheck: widget.toCheck)
+                    ],
+                  ),
+                
+              );
+      }
+    );
   }
   String variableScan="scan";
-  Widget scanType(){
+  Widget scanType(String navigationType){
     return Container(
       height: 48,
       padding: EdgeInsets.all(4),
@@ -44,30 +51,30 @@ class _ScanPageState extends State<ScanPage> {
       child: Builder(
         builder: (context) {
           if(RoleStorage.role=="special"){
-            return scanTypePunkt("Персонал","scan");
+            return scanTypePunkt("Персонал","scan","");
           }
           return Row(
             children: [
-              scanTypePunkt("Персонал","scan"),
-              scanTypePunkt("Транспорт","Transport"),
+              scanTypePunkt("Персонал","personal",navigationType),
+              scanTypePunkt("Транспорт","transport",navigationType),
             ],
           );
         }
       ),
     );
   }
-  Widget scanTypePunkt(String title,String type){
+  Widget scanTypePunkt(String title,String type,String currentType){
     return  Expanded(
         child: GestureDetector(
           onTap: () {
             setState(() {
-              variableScan=type;
+              transportStore.navigationType=type;
             });
           },
           child: Container( 
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: type==variableScan?Color.fromRGBO(241, 241, 241, 1):Colors.white
+              color: type==currentType?Color.fromRGBO(241, 241, 241, 1):Colors.white
             ),
             alignment: Alignment.center,
             child: Text(

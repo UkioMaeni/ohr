@@ -99,8 +99,8 @@ class SQLLite{
           completer();
       });
   }
-
-  Future<void> updateFullInfo(FullInfo items,String vector)async{
+  
+  Future<void> updateFullInfo(String documentNumber,String vector)async{
     final Database db = await openDatabase(path);
     if(vector=="input"){
       db.update(
@@ -111,7 +111,7 @@ class SQLLite{
         },
         where: "propusknumber = ?",
         whereArgs: [
-          items.propuskNumber
+          documentNumber
         ]
       );
     }else{
@@ -123,7 +123,7 @@ class SQLLite{
         },
         where: "propusknumber = ?",
         whereArgs: [
-          items.propuskNumber
+          documentNumber
         ]
       );
     }
@@ -139,7 +139,12 @@ class SQLLite{
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
   }
-
+  Future<void> deleteJurnal()async{
+    final Database db = await openDatabase(path);
+    await db.delete(
+        "jurnal",
+      );
+  }
   Future<List<Map<String, dynamic>>> checkJurnal()async{
     final Database db = await openDatabase(path);
     final List<Map<String, dynamic>> find = await db.query('jurnal');
@@ -194,6 +199,12 @@ class SQLLite{
         );
     }
     return null;
+  }
+  Future<int> checkCount()async{
+    final Database db = await openDatabase(path);
+    final List<Map<String, dynamic>> find = await db.query('full_info');
+    print(find);
+    return find.length;
   }
   Future<void> dropDatabase() async {
     final Database db = await openDatabase(path);

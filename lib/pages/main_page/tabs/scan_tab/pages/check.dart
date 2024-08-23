@@ -252,60 +252,43 @@ class _CheckPageState extends State<CheckPage> {
                                 SizedBox(height: 60,),
                                 personInfo(passStatus?.signal??"grey"),
                                 SizedBox(height: 32,),
-                                //statusChecked(),
+                                statusChecked(),
                                 Builder(
                                   builder: (context) {
                                     if(role.contains("kpp")){
                                       return Column(
                                         children: [
-                                          if(fullSignal=="grey")
-                                          Align(
-                                            alignment: Alignment.center,
-                                            child: Text(
-                                                  "Не найдено",
-                                                  style: TextStyle(
-                                                    fontFamily: "Inter",
-                                                    fontSize: 20,
-                                                    color: Colors.grey,
-                                                    fontWeight: FontWeight.w600,
-                                                  ),
-                                                ),
-                                          ),
-                                          for(var element in outputErrors)
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                                Text(
-                                                  element.name,
-                                                  style: TextStyle(
-                                                    height: 0.8,
-                                                    fontFamily: "No__",
-                                                    fontSize: 20,
-                                                    color: Colors.red,
-                                                    fontWeight: FontWeight.w500
-                                                  ),
-                                                ),
-                                                Align(
-                                                  alignment: Alignment.center,
-                                                  child: Text(
-                                                    element.date,
-                                                    style: TextStyle(
-                                                      height: 0.8,
-                                                      fontFamily: "No__",
-                                                      fontSize: 20,
-                                                      color: Colors.red,
-                                                      fontWeight: FontWeight.w500
-                                                    ),
-                                                  ),
-                                                ),
-                                            ],
-                                          ),
+                                          // if(fullSignal=="grey")
+                                          // Align(
+                                          //   alignment: Alignment.center,
+                                          //   child: Text(
+                                          //         "Не найдено",
+                                          //         style: TextStyle(
+                                          //           fontFamily: "Inter",
+                                          //           fontSize: 20,
+                                          //           color: Colors.grey,
+                                          //           fontWeight: FontWeight.w600,
+                                          //         ),
+                                          //       ),
+                                          // ),
+                                          
                                           SizedBox(height: 32,),
                                           actionButton(
                                             "Вход",
                                             Color.fromRGBO(6, 203, 73, 1),
                                             ()async{
                                               final dateValues=parseDate();
+                                               String errorsWrite="";
+                                              if(fullSignal=="grey"){
+                                                errorsWrite=errorsWrite+"Пропуск не найден,";
+                                              }
+                                              if(passStatus==null){
+                                                errorsWrite=errorsWrite+"Нет записи о допуске,";
+                                              }
+                                              if(passStatus!=null&&passStatus!.date=="НЕ ДОПУЩЕН"){
+                                                errorsWrite=errorsWrite+"Не допущен,";
+                                              }
+                                              print(widget.documentNumber);
                                               final jurnal= Jurnal(
                                                 kpp: appStore.kpp, 
                                                 date: dateValues[0], 
@@ -313,13 +296,13 @@ class _CheckPageState extends State<CheckPage> {
                                                 numberPassTS: null, 
                                                 numberPassDriver: null, 
                                                 numberPassPassanger: widget.documentNumber, 
-                                                inputObject: null, 
-                                                outputObject: "ДА",
+                                                inputObject: "ДА", 
+                                                outputObject: null,
                                                 ttn: "",
-                                                errors: outputErrors.join(",")
+                                                errors: errorsWrite
                                               );
                                               await dataBase.insertJurnal(jurnal);
-                                              
+                                              await dataBase.updateFullInfo(widget.documentNumber,"input");
                                               await showDialog(
                                                   context: context, builder: (context) {
                                                     return Dialog(
@@ -354,12 +337,26 @@ class _CheckPageState extends State<CheckPage> {
                                             }
                                           ),
                                           SizedBox(height: 24,),
+
+                                          
+
+
                                           actionButton(
                                             "Выход",
                                             Color.fromRGBO(59, 130, 246, 1),
                                             ()async{
                             
                                               final dateValues=parseDate();
+                                              String errorsWrite="";
+                                              if(fullSignal=="grey"){
+                                                errorsWrite=errorsWrite+"Пропуск не найден,";
+                                              }
+                                              if(passStatus==null){
+                                                errorsWrite=errorsWrite+"Нет записи о допуске,";
+                                              }
+                                              if(passStatus!=null&&passStatus!.date=="НЕ ДОПУЩЕН"){
+                                                errorsWrite=errorsWrite+"Не допущен,";
+                                              }
                                               final jurnal= Jurnal(
                                                 kpp: appStore.kpp, 
                                                 date: dateValues[0], 
@@ -370,10 +367,10 @@ class _CheckPageState extends State<CheckPage> {
                                                 inputObject: null, 
                                                 ttn: "",
                                                 outputObject: "ДА",
-                                                errors: ''
+                                                errors: errorsWrite
                                               );
                                               await dataBase.insertJurnal(jurnal);
-                                              
+                                              await dataBase.updateFullInfo(widget.documentNumber,"input");
                                               await showDialog(
                                                   context: context, builder: (context) {
                                                     return Dialog(
@@ -409,7 +406,7 @@ class _CheckPageState extends State<CheckPage> {
                                           ),
                                           SizedBox(height: 30),
                                           
-                                          outputErrors.isEmpty?SizedBox.shrink():
+                                          outputErrors.isEmpty&&fullSignal!="grey"?SizedBox.shrink():
                                             Row(
                                               children: [
                                                 GestureDetector(
@@ -564,7 +561,7 @@ Widget itemInfoWithDateWithGroup(String title, String? data){
   Widget actionButton(String title,Color color,Function() action){
     return GestureDetector(
       onTap: (){
-        if(outputErrors.isEmpty || requiredAction){
+        if(outputErrors.isEmpty&&fullSignal!="grey" || requiredAction){
           action();
         }
       }, 
@@ -573,7 +570,7 @@ Widget itemInfoWithDateWithGroup(String title, String? data){
         alignment: Alignment.center,
         width: double.infinity,
         decoration: BoxDecoration(
-          color:outputErrors.isEmpty || requiredAction?color:color.withAlpha(100),
+          color:outputErrors.isEmpty&&fullSignal!="grey" || requiredAction?color:color.withAlpha(100),
           borderRadius: BorderRadius.circular(12)
         ),
         child: Text(
@@ -592,32 +589,17 @@ Widget itemInfoWithDateWithGroup(String title, String? data){
 
   Widget statusChecked(){
     return Align(
-      alignment: errors.isEmpty?Alignment.center:Alignment.centerLeft,
-      child: errors.isEmpty
-      ?Text(
-          "Найден",
+      alignment: Alignment.center,
+      child: Text(
+          passStatus==null?"НЕ НАЙДЕН":passStatus!.date,
           style: TextStyle(
             fontFamily: "Inter",
             fontSize: 20,
             fontWeight: FontWeight.w800,
-            color: Color.fromRGBO(6, 203, 73, 1)
+            color:passStatus==null?Colors.grey:passStatus!.signal=="red"?Colors.red:passStatus!.signal=="green"? Color.fromRGBO(6, 203, 73, 1):Colors.grey
           ),
         )
-        :Column(
-          children: [
-            for(var element in errors)
-            Text(
-              element,
-              style: TextStyle(
-                fontFamily: "Inter",
-                fontSize: 20,
-                fontWeight: FontWeight.w800,
-                color: Color.fromRGBO(241, 45, 45, 1)
-              ),
-            )
-          ],
-        )
-        ,
+        
     );
   }
 

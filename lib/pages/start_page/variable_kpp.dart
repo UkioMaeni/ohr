@@ -17,7 +17,7 @@ class _VariableKppPageState extends State<VariableKppPage> {
 
   setKppInDevice(int kpp)async{
     await RoleStorage().setRole("kpp_$kpp");
-    Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(),));
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage(),),(route) => false,);
   }
 
 

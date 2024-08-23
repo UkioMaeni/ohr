@@ -9,6 +9,38 @@ part of 'transport_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
 mixin _$TransportStore on _TransportStore, Store {
+  late final _$_navigationAtom =
+      Atom(name: '_TransportStore._navigation', context: context);
+
+  @override
+  String get _navigation {
+    _$_navigationAtom.reportRead();
+    return super._navigation;
+  }
+
+  @override
+  set _navigation(String value) {
+    _$_navigationAtom.reportWrite(value, super._navigation, () {
+      super._navigation = value;
+    });
+  }
+
+  late final _$_navigationTypeAtom =
+      Atom(name: '_TransportStore._navigationType', context: context);
+
+  @override
+  String get _navigationType {
+    _$_navigationTypeAtom.reportRead();
+    return super._navigationType;
+  }
+
+  @override
+  set _navigationType(String value) {
+    _$_navigationTypeAtom.reportWrite(value, super._navigationType, () {
+      super._navigationType = value;
+    });
+  }
+
   late final _$_currentPeopleAtom =
       Atom(name: '_TransportStore._currentPeople', context: context);
 

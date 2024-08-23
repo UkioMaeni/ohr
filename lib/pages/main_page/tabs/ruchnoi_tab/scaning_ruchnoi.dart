@@ -67,7 +67,7 @@ class _ModalInputState extends State<ModalInput> {
                 SizedBox(height: 50,),
                 input(_controller),
                 SizedBox(height: 40,),
-                actionButton("Проверить", Colors.green, (){
+                actionButton(transportStore.currentPeople=="Автомобиль"?"Добавить авто":"Проверить", Colors.green, (){
                   if(transportStore.currentPeople=="Автомобиль"){
                     transportStore.updatePeople(InformarionAboutPeople(documentNumber: _controller.text));
                     Navigator.pop(context);
@@ -151,7 +151,8 @@ bool requiredAction=false;
                     final driverInfo=transportStore.driverInfo;
                     
                     if(driverInfo!=null&& driverInfo.error.isNotEmpty){
-                      print("Есть ошибка");
+                      print("////");
+                      print(driverInfo.error);
                       isErrors=true;
                     }
                     final peopleInfo=transportStore.peopleInfo;
@@ -284,7 +285,7 @@ bool requiredAction=false;
                                       )
                                     ),
                                     child: TextField(
-                                      controller: _controller,
+                                      controller: transportStore.ttnCcontroller,
                                       decoration: InputDecoration(
                                         border: InputBorder.none,
                                         hintText: "Например, 51886186"
@@ -307,7 +308,8 @@ bool requiredAction=false;
                                           ),
                                         ),
                                         Container(
-                                          height: 80,
+                                          
+
                                           decoration: BoxDecoration(
                                             border: Border.all(
                                               color: Colors.black,
@@ -334,6 +336,7 @@ bool requiredAction=false;
                                                                 
                                                               },
                                                               child: Container(
+                                                                height: 80,
                                                                 margin: EdgeInsets.symmetric(vertical: 5),
                                                                 alignment: Alignment.center,
                                                                 decoration: BoxDecoration(
@@ -358,10 +361,11 @@ bool requiredAction=false;
                                                                 showInfo(transportStore.driverInfo!);
                                                               },
                                                               child: Container(
+                                                                height: 80,
                                                                 margin: EdgeInsets.symmetric(vertical: 5),
                                                                   alignment: Alignment.center,
                                                                   decoration: BoxDecoration(
-                                                                    color: Color.fromARGB(255, 221, 118, 111),
+                                                                    color:transportStore.driverInfo!.error.contains("Пропуск не найден,")?Colors.grey: Color.fromARGB(255, 221, 118, 111),
                                                                     borderRadius: BorderRadius.circular(12)
                                                                   ),
                                                                   child: Builder(
@@ -396,6 +400,9 @@ bool requiredAction=false;
                                                             );
                                                           }
                                                           return Container(
+                                                            constraints: BoxConstraints(
+                                                              minHeight: 80
+                                                            ),
                                                             margin: EdgeInsets.symmetric(vertical: 5),
                                                             decoration: BoxDecoration(
                                                                   color: Colors.green,
@@ -455,7 +462,10 @@ bool requiredAction=false;
                                     ),
                                   ),
                                   Container(
-                                    height: 80,
+                                    
+                                    constraints: BoxConstraints(
+                                      minHeight: 80
+                                    ),
                                     decoration: BoxDecoration(
                                       border: Border.all(
                                         color: Colors.black,
@@ -479,6 +489,7 @@ bool requiredAction=false;
                                                           inputNumber();
                                                         },
                                                         child: Container(
+                                                          height: 80,
                                                           margin: EdgeInsets.symmetric(vertical: 5),
                                                           alignment: Alignment.center,
                                                           decoration: BoxDecoration(
@@ -499,10 +510,11 @@ bool requiredAction=false;
                                                     
                                                     if(transportStore.peopleInfo[i]!.error.isNotEmpty){
                                                       return Container(
+                                                        height: 80,
                                                         margin: EdgeInsets.symmetric(vertical: 5),
                                                           alignment: Alignment.center,
                                                           decoration: BoxDecoration(
-                                                            color: Color.fromARGB(255, 221, 118, 111),
+                                                            color:transportStore.peopleInfo[i]!.error.contains("Пропуск не найден,")?Colors.grey: Color.fromARGB(255, 221, 118, 111) ,
                                                             borderRadius: BorderRadius.circular(12)
                                                           ),
                                                           child: Builder(
@@ -513,7 +525,6 @@ bool requiredAction=false;
                                                                         style: TextStyle(
                                                                           fontFamily: "No__",
                                                                           fontSize: 20,
-                                                                          color: Colors.white,
                                                                           fontWeight: FontWeight.w500
                                                                         ),
                                                                       );
@@ -525,15 +536,18 @@ bool requiredAction=false;
                                                                         style: TextStyle(
                                                                           fontFamily: "No__",
                                                                           fontSize: 20,
-                                                                          color: Colors.white,
                                                                           fontWeight: FontWeight.w500
                                                                         ),
                                                                       ); 
+                                                              
                                                             },
                                                           ),
                                                       );
                                                     }
                                                     return Container(
+                                                      constraints: BoxConstraints(
+                                                        minHeight: 80
+                                                      ),
                                                       margin: EdgeInsets.symmetric(vertical: 5),
                                                       decoration: BoxDecoration(
                                                             color: Colors.green,
@@ -544,7 +558,7 @@ bool requiredAction=false;
                                                         children: [
                                                           Text(
                                                             (transportStore.peopleInfo[i]!.fullInfo?.fullName??"")+"\n"+
-                                                            transportStore.driverInfo!.documentNumber,
+                                                            transportStore.peopleInfo[i]!.documentNumber,
                                                             textAlign: TextAlign.center,
                                                             style: TextStyle(
                                                               fontFamily: "No__",
@@ -552,6 +566,7 @@ bool requiredAction=false;
                                                               fontWeight: FontWeight.w500
                                                             ),
                                                           ) 
+                                                          
                                                         ],
                                                       ),
                                                     );
@@ -604,10 +619,10 @@ bool requiredAction=false;
                                     numberPassPassanger: transportStore.driverInfo==null?null:transportStore.driverInfo!.documentNumber, 
                                     inputObject: "ДА", 
                                     outputObject: null,
-                                    ttn: _controller.text,
+                                    ttn: transportStore.ttnCcontroller.text.isEmpty?null: transportStore.ttnCcontroller.text,
                                     errors: transportStore.driverInfo!.error.join(",")
                                   );
-                                  await dataBase.updateFullInfo(transportStore.driverInfo!.fullInfo!, "input");
+                                  await dataBase.updateFullInfo(transportStore.driverInfo!.documentNumber, "input");
                                   await dataBase.insertJurnal(jurnal);
                               }
                               for( var people in transportStore.peopleInfo){
@@ -621,11 +636,12 @@ bool requiredAction=false;
                                     numberPassPassanger: people.documentNumber, 
                                     inputObject: "ДА", 
                                     outputObject: null,
-                                    ttn: _controller.text,
+                                    ttn: transportStore.ttnCcontroller.text.isEmpty?null: transportStore.ttnCcontroller.text,
                                     errors: people.error.join(",")
                                   );
-                                  await dataBase.updateFullInfo(people.fullInfo!, "input");
+                                  await dataBase.updateFullInfo(people.documentNumber, "input");
                                   await dataBase.insertJurnal(jurnal);
+                                  transportStore.ttnCcontroller.text="";
                                 }
                                 
                               }
@@ -682,10 +698,10 @@ bool requiredAction=false;
                                     numberPassPassanger: transportStore.driverInfo==null?null:transportStore.driverInfo!.documentNumber, 
                                     inputObject: null, 
                                     outputObject: "ДА",
-                                    ttn: _controller.text,
+                                    ttn: transportStore.ttnCcontroller.text.isEmpty?null: transportStore.ttnCcontroller.text,
                                     errors: transportStore.driverInfo!.error.join(",")
                                   );
-                                  await dataBase.updateFullInfo(transportStore.driverInfo!.fullInfo!, "output");
+                                  await dataBase.updateFullInfo(transportStore.driverInfo!.documentNumber, "output");
                                   await dataBase.insertJurnal(jurnal);
                               }
                               for( var people in transportStore.peopleInfo){
@@ -699,11 +715,12 @@ bool requiredAction=false;
                                     numberPassPassanger: people.documentNumber, 
                                     inputObject: null, 
                                     outputObject: "ДА",
-                                    ttn: _controller.text,
+                                    ttn: transportStore.ttnCcontroller.text.isEmpty?null: transportStore.ttnCcontroller.text,
                                     errors: people.error.join(",")
                                   );
-                                  await dataBase.updateFullInfo(people.fullInfo!, "output");
+                                  await dataBase.updateFullInfo(people.documentNumber, "output");
                                   await dataBase.insertJurnal(jurnal);
+                                  transportStore.ttnCcontroller.text="";
                                 }
                                 
                               }
@@ -815,49 +832,53 @@ class _ScaningRuchnoiState extends State<ScaningRuchnoi> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        children: [
-          SizedBox(height: 48,),
-            scanType(),
-            SizedBox(height: 32,),
-            Builder(
-              builder: (context) {
-                if(variableScan=="scan"){
-                  return Column(
-                    children: [
-                      input(_controller),
-                      SizedBox(height: 40,),
-                      actionButton("Проверить", Colors.green, (){
-                        showDialog(
-                          context: context, builder: (context) {
-                            return Container(
-                              color: Colors.white,
-                              child: CheckPage(documentNumber: _controller.text,toScan: () {
-                                Navigator.pop(context);
-                              },),
+      child: Observer(
+        builder: (context) {
+          String navigationType= transportStore.navigationType;
+          return Column(
+            children: [
+              SizedBox(height: 48,),
+                scanType(navigationType),
+                SizedBox(height: 32,),
+                Builder(
+                  builder: (context) {
+                    if(navigationType=="personal"){
+                      return Column(
+                        children: [
+                          input(_controller),
+                          SizedBox(height: 40,),
+                          actionButton("Проверить", Colors.green, (){
+                            showDialog(
+                              context: context, builder: (context) {
+                                return Container(
+                                  color: Colors.white,
+                                  child: CheckPage(documentNumber: _controller.text,toScan: () {
+                                    Navigator.pop(context);
+                                  },),
+                                );
+                              },
                             );
-                          },
-                        );
-                      })
-                    ],
-                  );
-                  
-                }
-                return TransportRuchnoi();
-              },
-            ),
-            
-            SizedBox(height: 30,),
-            //button("Проверить",widget.toCheck)
-        ],
+                          })
+                        ],
+                      );
+                      
+                    }
+                    return TransportRuchnoi();
+                  },
+                ),
+                
+                SizedBox(height: 30,),
+                //button("Проверить",widget.toCheck)
+            ],
+          );
+        }
       ),
     );
   }
 
 
 
- String variableScan="scan";
-  Widget scanType(){
+  Widget scanType(String navigationType){
     return Container(
       height: 48,
       padding: EdgeInsets.all(4),
@@ -870,30 +891,30 @@ class _ScaningRuchnoiState extends State<ScaningRuchnoi> {
       child: Builder(
         builder: (context) {
           if(RoleStorage.role=="special"){
-            return scanTypePunkt("Персонал","scan");
+            return scanTypePunkt("Персонал","scan",navigationType);
           }
           return Row(
             children: [
-              scanTypePunkt("Персонал","scan"),
-              scanTypePunkt("Транспорт","Transport"),
+              scanTypePunkt("Персонал","personal",navigationType),
+              scanTypePunkt("Транспорт","transport",navigationType),
             ],
           );
         }
       ),
     );
   }
-  Widget scanTypePunkt(String title,String type){
+  Widget scanTypePunkt(String title,String type,String currentType){
     return  Expanded(
         child: GestureDetector(
           onTap: () {
             setState(() {
-              variableScan=type;
+              transportStore.navigationType=type;
             });
           },
           child: Container( 
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
-              color: type==variableScan?Color.fromRGBO(241, 241, 241, 1):Colors.white
+              color: type==currentType?Color.fromRGBO(241, 241, 241, 1):Colors.white
             ),
             alignment: Alignment.center,
             child: Text(

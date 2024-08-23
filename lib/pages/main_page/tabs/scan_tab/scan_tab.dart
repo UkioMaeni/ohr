@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:secure_kpp/pages/main_page/store/transport_store.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/conponents/scaning.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/pages/check.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/pages/scan.dart';
@@ -31,6 +33,16 @@ class _ScanTabState extends State<ScanTab> {
   @override
   Widget build(BuildContext context) {
     print(numberDocument);
+    // return Observer(
+    //   builder: (context) {
+    //     String navigationType= transportStore.navigationType;
+    //     if(navigationType=="personal"){
+    //       ScanPage(toCheck:toCheck);
+    //     }else{
+    //       CheckPage(documentNumber: numberDocument,toScan:toScan);
+    //     }
+    //   },
+    // );
     if(page=="scan"){
       return  ScanPage(toCheck:toCheck);
     }else if(page=="check"){

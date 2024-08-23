@@ -17,7 +17,6 @@ class _SettingsTabState extends State<SettingsTab> {
   void syncData()async{
     showDialog(
       barrierDismissible: false,
-      
       context: context, 
       builder: (context) {
         return ModalLoadingSettings(updateSyncInfo:updateSyncInfo);
@@ -30,8 +29,8 @@ class _SettingsTabState extends State<SettingsTab> {
   String lastDate="";
 
   lastSync()async{
-    count= await DataInfoStorage().getCount();
-    lastDate=await DataInfoStorage().getLastDate();
+    count= dataInfoStorage.count??"N\\A";
+    lastDate=dataInfoStorage.lastDate??"N\\A";
     setState(() {
       
     });
@@ -39,6 +38,8 @@ class _SettingsTabState extends State<SettingsTab> {
 
   updateSyncInfo(String newCount,String date){
     setState(() {
+      dataInfoStorage.count=newCount;
+      dataInfoStorage.setLastDate(date);
       count=newCount;
       lastDate=date;
     });

@@ -4,6 +4,7 @@ import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/pages/main_page/main_page.dart';
 import 'package:secure_kpp/pages/start_page/kpp_auth.dart';
 import 'package:secure_kpp/pages/start_page/variable_kpp.dart';
+import 'package:secure_kpp/storage/data_info_storage.dart';
 import 'package:secure_kpp/storage/role_storeage.dart';
 import 'package:secure_kpp/store/store.dart';
 
@@ -21,9 +22,6 @@ class _StartPageState extends State<StartPage> {
     Navigator.push(context, MaterialPageRoute(builder: (context) => VariableKppPage(),));
   }
 
-   void toAuthPage(){
-    Navigator.push(context, MaterialPageRoute(builder: (context) => KppAuthPage(),));
-  }
 
 
   bool loading=true;
@@ -33,7 +31,8 @@ class _StartPageState extends State<StartPage> {
     //await dataBase.dropDatabase();
     await dataBase.createDB();
     await dataBase.checkJurnal();
-    await dataBase.search("23217");
+    await dataInfoStorage.getCount();
+    await dataInfoStorage.getLastDate();
     String role=await RoleStorage().getRole();
     int kpp=0;
     if(role.contains("kpp")){
@@ -41,10 +40,7 @@ class _StartPageState extends State<StartPage> {
       int parsedKpp=int.parse(role.split("_")[1]);
       kpp=parsedKpp;
       appStore.kpp=kpp.toString();
-     return Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(),));
-    }else if(role.contains("special")){
-      RoleStorage.role="special";
-      return Navigator.push(context, MaterialPageRoute(builder: (context) => MainPage(),));
+     return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage(),),(route) => false,);
     }else{
       await Future.delayed(Duration(seconds: 2));
       setState(() {
@@ -75,15 +71,6 @@ class _StartPageState extends State<StartPage> {
             Column(
               children: [
                 SizedBox(height: 24,),
-                Text(
-                  "Выберите роль",
-                  style: TextStyle(
-                    fontFamily: "No__",
-                    fontSize: 20,
-                    fontWeight: FontWeight.w500,
-                    color: loading?Colors.white:Colors.black
-                  ),
-                ),
                 SizedBox(height: 35,),
                 Align(
                   alignment: Alignment.center,
@@ -96,9 +83,7 @@ class _StartPageState extends State<StartPage> {
             ?Padding(padding: EdgeInsets.only(bottom: 100), child: CircularProgressIndicator())
             :Column(
               children: [
-                  button("КПП",toKppPage),
-                  SizedBox(height: 24,),
-                  button("Специалист ПБ",toAuthPage),
+                  button("Выбрать КПП",toKppPage),
                   SizedBox(height: 40,),
               ],
             )

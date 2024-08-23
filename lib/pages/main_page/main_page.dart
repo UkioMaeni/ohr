@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:secure_kpp/pages/main_page/store/transport_store.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/scan_tab.dart';
 import 'package:secure_kpp/pages/main_page/tabs/ruchnoi_tab/scaning_ruchnoi.dart';
 import 'package:secure_kpp/pages/settings/settings_tab.dart';
@@ -70,22 +72,33 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           ),
            
           Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              onPageChanged: (value) {
-                setState(() {
-                  _indexTab=value;
-                });
-              },
-              physics: NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) {
-                if(index==0){
+            child:
+            Observer(
+              builder: (context) {
+                String page= transportStore.navigation;
+                if(page=="scan"){
                   return ScanTab();
                 }else{
-                  return ScaningRuchnoi( );
+                    return ScaningRuchnoi( );
                 }
               },
             )
+            //  PageView.builder(
+            //   controller: _pageController,
+            //   onPageChanged: (value) {
+            //     setState(() {
+            //       _indexTab=value;
+            //     });
+            //   },
+            //   physics: NeverScrollableScrollPhysics(),
+            //   itemBuilder: (context, index) {
+            //     if(index==0){
+            //       return ScanTab();
+            //     }else{
+                  
+            //     }
+            //   },
+            // )
           ),
           Container(
             height: 97,
@@ -106,20 +119,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                       _pageController.animateToPage(0, duration: Duration(milliseconds: 300), curve: Curves.linear);
+                       transportStore.navigation="scan";
                       });
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(_indexTab==0?"assets/svg/scan.svg":"assets/svg/scan_a.svg",color:_indexTab==0?Colors.black: Color.fromRGBO(78, 78, 78, 1),),
+                        SvgPicture.asset(transportStore.navigation=="scan"?"assets/svg/scan.svg":"assets/svg/scan_a.svg",color:_indexTab==0?Colors.black: Color.fromRGBO(78, 78, 78, 1),),
                         Text(
                         "Скан",
                         style: TextStyle(
                           fontFamily: "No__",
                           fontSize: 20,
-                          fontWeight: _indexTab==0?FontWeight.w500: FontWeight.w300,
-                          color: _indexTab==0?Colors.black: Color.fromRGBO(78, 78, 78, 1)
+                          fontWeight: transportStore.navigation=="scan"?FontWeight.w500: FontWeight.w300,
+                          color: transportStore.navigation=="scan"?Colors.black: Color.fromRGBO(78, 78, 78, 1)
                         ),
                       )
                       ],
@@ -130,20 +143,20 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
-                        _pageController.animateToPage(1, duration: Duration(milliseconds: 300), curve: Curves.linear);
+                        transportStore.navigation="ruchnoi";
                       });
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(_indexTab==1?"assets/svg/settings.svg":"assets/svg/settings_a.svg",color:_indexTab==1?Colors.black: Color.fromRGBO(78, 78, 78, 1),),
+                        SvgPicture.asset(transportStore.navigation!="scan"?"assets/svg/settings.svg":"assets/svg/settings_a.svg",color:_indexTab==1?Colors.black: Color.fromRGBO(78, 78, 78, 1),),
                         Text(
                         "Вручную",
                         style: TextStyle(
                           fontFamily: "No__",
                           fontSize: 20,
-                          fontWeight: _indexTab==1?FontWeight.w500: FontWeight.w300,
-                          color: _indexTab==1?Colors.black: Color.fromRGBO(78, 78, 78, 1)
+                          fontWeight: transportStore.navigation!="scan"?FontWeight.w500: FontWeight.w300,
+                          color: transportStore.navigation!="scan"?Colors.black: Color.fromRGBO(78, 78, 78, 1)
                         ),
                       )
                       ],
