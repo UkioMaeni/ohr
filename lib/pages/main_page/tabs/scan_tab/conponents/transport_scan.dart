@@ -1269,7 +1269,7 @@ class _CheckPageInTransportState extends State<CheckPageInTransport> {
   }
   Widget personInfo(){
   return Container(
-    height: 220,
+    height: 220, 
     width: double.infinity,
     padding: EdgeInsets.only(left: 40,top: 40),
     decoration: BoxDecoration(
