@@ -7,6 +7,7 @@ import 'package:secure_kpp/pages/main_page/store/transport_store.dart';
 import 'package:secure_kpp/pages/main_page/tabs/scan_tab/scan_tab.dart';
 import 'package:secure_kpp/pages/main_page/tabs/ruchnoi_tab/scaning_ruchnoi.dart';
 import 'package:secure_kpp/pages/settings/settings_tab.dart';
+import 'package:secure_kpp/store/store.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -39,6 +40,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
           Stack(
             alignment: Alignment.center,
             children: [
+              
               Align(),
               Column(
                 

@@ -3,6 +3,7 @@ import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/http/dataInfo.dart';
 import 'package:secure_kpp/pages/settings/components/modal_loading_settings.dart';
 import 'package:secure_kpp/storage/data_info_storage.dart';
+import 'package:secure_kpp/store/store.dart';
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
@@ -58,6 +59,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   children: [
+                    
                     SizedBox(height: 24,),
                     Text(
                       "Настройки",
@@ -67,7 +69,18 @@ class _SettingsTabState extends State<SettingsTab> {
                         fontWeight: FontWeight.w500
                       ),
                     ),
-                    SizedBox(height: 120,),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("deviceId: ${appStore.deviceId??"Неизвестно"}"),
+                          Text("КПП: ${appStore.kpp??"Неизвестно"}"),
+                        ],
+                      ),
+                    ),
+                    
+                    SizedBox(height: 80,),
                     syncButton(),
                     SizedBox(height: 24,),
                     syncInfo()

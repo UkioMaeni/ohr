@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/pages/main_page/main_page.dart';
 import 'package:secure_kpp/pages/start_page/kpp_auth.dart';
@@ -39,7 +40,10 @@ class _StartPageState extends State<StartPage> {
       RoleStorage.role="kpp";
       int parsedKpp=int.parse(role.split("_")[1]);
       kpp=parsedKpp;
+      String? deviceId = await PlatformDeviceId.getDeviceId;
+      print(kpp);
       appStore.kpp=kpp.toString();
+      appStore.deviceId=deviceId;
      return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage(),),(route) => false,);
     }else{
       await Future.delayed(Duration(seconds: 2));

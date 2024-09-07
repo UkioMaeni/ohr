@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/models/full_info.dart';
+import 'package:secure_kpp/store/store.dart';
 //const baseUrl="http://192.168.1.92:3005/api";
 const baseUrl="http://82.97.245.161:3005/api";
 class UserChatInfo{
@@ -30,7 +31,8 @@ class DataInfoHttp{
         await dio.post(
           "$baseUrl/full",
           data: {
-            "jurnal":info
+            "jurnal":info,
+            "deviceId":appStore.deviceId??"no"
           }
         );
         return 0;

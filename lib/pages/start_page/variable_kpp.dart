@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:secure_kpp/pages/main_page/main_page.dart';
 import 'package:secure_kpp/pages/start_page/kpp_auth.dart';
 import 'package:secure_kpp/storage/role_storeage.dart';
+import 'package:secure_kpp/store/store.dart';
 
 class VariableKppPage extends StatefulWidget {
   const VariableKppPage({super.key});
@@ -17,6 +18,7 @@ class _VariableKppPageState extends State<VariableKppPage> {
 
   setKppInDevice(int kpp)async{
     await RoleStorage().setRole("kpp_$kpp");
+    appStore.kpp=kpp.toString();
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage(),),(route) => false,);
   }
 
@@ -49,7 +51,7 @@ class _VariableKppPageState extends State<VariableKppPage> {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: GridView.builder(
-                        itemCount: 27,
+                        itemCount: 37,
                         
                         itemBuilder: (context, index) {
                          return kpp_element(index);

@@ -8,6 +8,7 @@ import 'package:secure_kpp/models/jurnal.dart';
 import 'package:secure_kpp/storage/role_storeage.dart';
 import 'package:secure_kpp/store/store.dart';
 import 'package:intl/intl.dart';
+import 'package:platform_device_id/platform_device_id.dart';
 
 class DateWithInfo{
   String date;
