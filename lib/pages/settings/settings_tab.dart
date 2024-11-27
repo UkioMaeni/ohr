@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_app_info/flutter_app_info.dart';
 import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/http/dataInfo.dart';
+import 'package:secure_kpp/pages/full_settings/full_settings.dart';
 import 'package:secure_kpp/pages/settings/components/modal_loading_settings.dart';
 import 'package:secure_kpp/storage/data_info_storage.dart';
 import 'package:secure_kpp/store/store.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsTab extends StatefulWidget {
   const SettingsTab({super.key});
@@ -76,6 +79,26 @@ class _SettingsTabState extends State<SettingsTab> {
                         children: [
                           Text("deviceId: ${appStore.deviceId??"Неизвестно"}"),
                           Text("КПП: ${appStore.kpp??"Неизвестно"}"),
+                          SizedBox(height: 20,),
+                          Text("Версия: ${AppInfo.of(context).package.version}"),
+                          GestureDetector(
+                            onTap: () async{
+                              // await launchUrl(
+                              //   Uri.parse("http://82.97.245.161:3005/downloadfile"),
+                              //   mode: LaunchMode.externalApplication,
+                              //   browserConfiguration:  BrowserConfiguration(showTitle: true)
+                              // );
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => FullSettings(),));
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.blue,
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                              child: Text("Открыть все настройки",style: TextStyle(color: Colors.white),),
+                            ),
+                          )
                         ],
                       ),
                     ),

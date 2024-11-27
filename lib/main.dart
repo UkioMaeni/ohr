@@ -2,12 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_info/flutter_app_info.dart';
 import 'package:secure_kpp/pages/start_page/start_page.dart';
-void main() {
+void main()async {
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
-  runApp(const MyApp());
+  runApp(AppInfo(
+    data: await AppInfoData.get(),
+    child: MyApp()
+    ));
 }
 
 class MyApp extends StatelessWidget {

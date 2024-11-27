@@ -35,15 +35,22 @@ class _StartPageState extends State<StartPage> {
     await dataInfoStorage.getCount();
     await dataInfoStorage.getLastDate();
     String role=await RoleStorage().getRole();
+    try {
+      String? deviceId = await PlatformDeviceId.getDeviceId;
+      print(deviceId);
+      appStore.deviceId=deviceId;
+    } catch (e) {
+      
+    }
     int kpp=0;
     if(role.contains("kpp")){
       RoleStorage.role="kpp";
       int parsedKpp=int.parse(role.split("_")[1]);
       kpp=parsedKpp;
-      String? deviceId = await PlatformDeviceId.getDeviceId;
+      
       print(kpp);
       appStore.kpp=kpp.toString();
-      appStore.deviceId=deviceId;
+      
      return Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainPage(),),(route) => false,);
     }else{
       await Future.delayed(Duration(seconds: 2));

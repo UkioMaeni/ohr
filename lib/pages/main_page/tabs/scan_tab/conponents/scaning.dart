@@ -181,17 +181,21 @@ class _ScaningState extends State<Scaning> {
     InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
     GoogleVisionImage imageForBarcode = GoogleVisionImage.fromBytes(inputImage.bytes!,GoogleVisionImageMetadata(size: Size(image.width.toDouble(), image.height.toDouble())));
     final List<Barcode> barcodes = await barcodeDetector.detectInImage(imageForBarcode);
-    // if(barcodes.isNotEmpty){
-    //   print(barcodes[0].displayValue);
-    //   toogleCamera();
-    //     return widget.toCheck(barcodes[0].displayValue!);
-    // }
+    print(barcodes.length);
+    barcodes.forEach((element) {
+      print(element.displayValue);
+    },);
+    if(barcodes.isNotEmpty&& barcodes[0].displayValue!=null && barcodes[0].displayValue!.length>=3){
+      
+      toogleCamera();
+        return widget.toCheck(barcodes[0].displayValue!);
+    }
     final recognisedText = await textDetector.processImage(inputImage);
-    RegExp regex = RegExp(r'\d{4,5}');
+    RegExp regex = RegExp(r'\d{3,5}');
     
     
     for (var element in recognisedText.blocks) { 
-     print(element.text);
+     //print(element.text);
      RegExpMatch? match = regex.firstMatch(element.text);
      List<String> dotSplit= element.text.split(".");
       if(match!=null && dotSplit.length<2){
@@ -205,7 +209,7 @@ class _ScaningState extends State<Scaning> {
       }
       
     }
-    print(counter.toString());
+    //print(counter.toString());
     counter.forEach((key, value) { 
       if(value>=5){
         inspect(key);

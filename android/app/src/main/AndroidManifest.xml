@@ -2,6 +2,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <application
         android:label="Охрана"
         android:name="${applicationName}"
@@ -42,6 +43,11 @@
         <intent>
             <action android:name="android.intent.action.PROCESS_TEXT"/>
             <data android:mimeType="text/plain"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+        <!-- If you don't know the MIME type in advance, set "mimeType" to "*/*". -->
+            <data android:mimeType="*/*" />
         </intent>
     </queries>
 </manifest>
