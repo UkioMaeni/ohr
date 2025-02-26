@@ -528,7 +528,7 @@ bool requiredAction=false;
                         ],
                       ),
                         SizedBox(height: 24,),
-                        if(driverInfo!=null) actionButton("Вход",isErrors&&!requiredAction?Color.fromRGBO(6, 203, 73, 1).withAlpha(100): Color.fromRGBO(6, 203, 73, 1),()async{
+                        if(carInfo!=null) actionButton("Вход",isErrors&&!requiredAction?Color.fromRGBO(6, 203, 73, 1).withAlpha(100): Color.fromRGBO(6, 203, 73, 1),()async{
                           DateTime now = DateTime.now();
                           String formattedDate = DateFormat('dd.MM.yyyy').format(now);
                           String formattedTime = DateFormat('HH:mm').format(now);
@@ -607,7 +607,7 @@ bool requiredAction=false;
                                               
                         }),
                         SizedBox(height: 24,),
-                        if(driverInfo!=null) actionButton("Выход",isErrors&&!requiredAction?Color.fromRGBO(59, 130, 246, 1).withAlpha(100): Color.fromRGBO(59, 130, 246, 1),()async{
+                        if(carInfo!=null) actionButton("Выход",isErrors&&!requiredAction?Color.fromRGBO(59, 130, 246, 1).withAlpha(100): Color.fromRGBO(59, 130, 246, 1),()async{
                           DateTime now = DateTime.now();
                           String formattedDate = DateFormat('dd.MM.yyyy').format(now);
                           String formattedTime = DateFormat('HH:mm').format(now);

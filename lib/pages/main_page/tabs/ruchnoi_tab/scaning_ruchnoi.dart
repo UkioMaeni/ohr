@@ -602,7 +602,7 @@ bool requiredAction=false;
                           ),
                           ///экшены
                           SizedBox(height: 24,),
-                            if(driverInfo!=null) actionButton("Вход",isErrors&&!requiredAction?Color.fromRGBO(6, 203, 73, 1).withAlpha(100): Color.fromRGBO(6, 203, 73, 1),()async{
+                            if(transportStore.carInfo!=null) actionButton("Вход",isErrors&&!requiredAction?Color.fromRGBO(6, 203, 73, 1).withAlpha(100): Color.fromRGBO(6, 203, 73, 1),()async{
                               DateTime now = DateTime.now();
                               String formattedDate = DateFormat('dd.MM.yyyy').format(now);
                               String formattedTime = DateFormat('HH:mm').format(now);
@@ -681,7 +681,7 @@ bool requiredAction=false;
                                                   
                             }),
                             SizedBox(height: 24,),
-                            if(driverInfo!=null) actionButton("Выход",isErrors&&!requiredAction?Color.fromRGBO(59, 130, 246, 1).withAlpha(100): Color.fromRGBO(59, 130, 246, 1),()async{
+                            if(transportStore.carInfo!=null) actionButton("Выход",isErrors&&!requiredAction?Color.fromRGBO(59, 130, 246, 1).withAlpha(100): Color.fromRGBO(59, 130, 246, 1),()async{
                               DateTime now = DateTime.now();
                               String formattedDate = DateFormat('dd.MM.yyyy').format(now);
                               String formattedTime = DateFormat('HH:mm').format(now);
@@ -1005,8 +1005,9 @@ Widget input(TextEditingController _controller){
                   fontSize: 15,
                   fontWeight: FontWeight.w400,
                 ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: <TextInputFormatter>[
+                  FilteringTextInputFormatter.allow(RegExp('[a-zA-Z0-9]'))
+                ],
               decoration: InputDecoration(
                 
                 contentPadding: EdgeInsets.only(left: 20,right: 20,bottom: 0,top: 0),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_info/flutter_app_info.dart';
+import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/store/store.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
@@ -39,13 +40,20 @@ class _FullSettingsState extends State<FullSettings> {
       try {
         final directory = await getApplicationDocumentsDirectory();
       print(directory.path);
-      File file = File('${directory.path}/update.apk');
+      File file = File('${directory.path.replaceFirst("/app_flutter", "")}/update.apk');
       print(await file.exists());
       if(await file.exists()){
         await file.delete();
       }
+       int major= AppInfo.of(context).package.version.major;
+       int minor= AppInfo.of(context).package.version.minor;
+       int patch= AppInfo.of(context).package.version.patch;
+       String version = "$major.$minor.$patch";
+       print(version);
+       
         final response= await Dio().get(
-        "http://82.97.245.161:3005/downloadfile",
+
+        "http://82.97.245.161:3005/downloadfile?version=$version",
         options: Options(
           responseType: ResponseType.bytes
         ),
@@ -58,7 +66,7 @@ class _FullSettingsState extends State<FullSettings> {
           print(total);
         },
       );
-      //print(response.data);
+      print(response.data);
       await file.writeAsBytes(response.data);
       int? statusCode = await AndroidPackageInstaller.installApk(apkFilePath: file.path);
       if (statusCode != null) {
@@ -67,15 +75,39 @@ class _FullSettingsState extends State<FullSettings> {
         print(installationStatus.name);
       }
       } catch (e) {
-        setState(() {
-          error="Непредвиденая ошибка, повторите попытку";
-        });
+        if(e is DioException){
+         DioException dioError = e as DioException;
+          if(dioError.response?.statusCode==400){
+            setState(() {
+              error="Актуальная версия уже установлена";
+            });
+          }
+        }else{
+          setState(() {
+            error="Непредвиденая ошибка, повторите попытку";
+          });
+        }
+        
       }
     setState(() {isDownload=false;});
   }
 
   double get width => MediaQuery.of(context).size.width;
   double get progress => count.toDouble()/total.toDouble();
+
+  int? jurnalCount;
+  getJurnalCount()async{
+   jurnalCount= await dataBase.checkJurnalCount(); 
+   setState(() {
+     
+   });
+  }
+  @override
+  void initState() {
+    getJurnalCount();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,6 +138,13 @@ class _FullSettingsState extends State<FullSettings> {
               SizedBox(height: 20,),
               Text("deviceId: ${appStore.deviceId??"Неизвестно"}",style: TextStyle(fontSize: 18)),
               Text("КПП: ${appStore.kpp??"Неизвестно"}",style: TextStyle(fontSize: 18)),
+              Row(
+                children: [
+                  Text("Всего записей в журнале:",style: TextStyle(fontSize: 18)),
+                  SizedBox(width: 20,),
+                  jurnalCount==null?SizedBox(width: 10,height: 10, child: CircularProgressIndicator()):Text(jurnalCount.toString(),style: TextStyle(fontSize: 18)),
+                ],
+              ),
               SizedBox(height: 20,),
               Text("Версия: ${AppInfo.of(context).package.version}",style: TextStyle(fontSize: 18)),
               GestureDetector(

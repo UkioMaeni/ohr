@@ -191,7 +191,7 @@ class _ScaningState extends State<Scaning> {
         return widget.toCheck(barcodes[0].displayValue!);
     }
     final recognisedText = await textDetector.processImage(inputImage);
-    RegExp regex = RegExp(r'\d{3,5}');
+    RegExp regex = RegExp(r'\d{3,6}');
     
     
     for (var element in recognisedText.blocks) { 

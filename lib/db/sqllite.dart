@@ -206,6 +206,12 @@ class SQLLite{
     print(find);
     return find.length;
   }
+  Future<int> checkJurnalCount()async{
+    final Database db = await openDatabase(path);
+    final List<Map<String, dynamic>> find = await db.query('jurnal');
+    print(find);
+    return find.length;
+  }
   Future<void> dropDatabase() async {
     final Database db = await openDatabase(path);
     await db.close();
