@@ -88,16 +88,22 @@ class SQLLite{
 
   Future<void> insertFullInfo(List<FullInfo> items,Function() completer)async{
     final Database db = await openDatabase(path);
-
-   db.delete("full_info");
-    await Future.forEach(items,(element)async {
-          await db.insert(
-            "full_info",
-            element.toMap(),
-            conflictAlgorithm: ConflictAlgorithm.replace,
-          );
-          completer();
-      });
+    final batch = db.batch();
+    batch.delete("full_info");
+    for (final item in items) {
+      batch.insert('full_info', item.toMap(),conflictAlgorithm: ConflictAlgorithm.replace,);
+      completer();
+    }
+    await batch.commit();
+    await db.close();
+    // await Future.forEach(items,(element)async {
+    //       await db.insert(
+    //         "full_info",
+    //         element.toMap(),
+    //         conflictAlgorithm: ConflictAlgorithm.replace,
+    //       );
+    //       completer();
+    //   });
   }
   
   Future<void> updateFullInfo(String documentNumber,String vector)async{

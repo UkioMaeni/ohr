@@ -16,28 +16,88 @@ class ModalLoadingSettings extends StatefulWidget {
 
 class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
 
-  String step="loading";
+  String step="sendJurnal";
   
 
   bool isLoad=false;
 
   String error='';
 
-  List<FullInfo> info=[];
+  List<FullInfo>? info;
   int insertedToDb=0;
+
+
+  sendJurnal()async{
+    if(isLoad) return;
+
+    try {
+      isLoad=true;
+      final addResult= await DataInfoHttp().addJurnalToServer();
+      if(addResult!=null){
+        dataBase.deleteJurnal();
+        setState(() {
+          step="completedJurnal";
+        });
+      }else{
+        setState(() {
+          step="errorJurnal";
+        });
+        
+      }
+    } catch (e) {
+      
+    } finally {
+      isLoad=false;
+    }
+  }
+
+  updateDB()async{
+    if(isLoad) return;
+    try {
+      final result=await DataInfoHttp().getFullInfo();
+      if(result!=null){
+        Future.delayed(Duration(seconds: 1)).then((value) {
+          setState(() {
+            info=result;
+            step="insertDB";
+          });
+        },);
+        
+      }else{
+        setState(() {
+            step="errorDB";
+        });
+      }
+    } catch (e) {
+      setState(() {
+            step="errorDB";
+        });
+    } finally {
+      isLoad=false;
+    }
+  } 
+
+
+  toDbStep(){
+    Future.delayed(Duration(seconds: 1)).then((value) {
+      setState(() {
+        step="loadDB";
+      });
+    },);
+  }
+
   void loading()async{
     if(!isLoad){
       isLoad=true;
-      final addResult= await DataInfoHttp().addJurnalToServer();
-      if(addResult==0){
-        dataBase.deleteJurnal();
-      }
       final result=await DataInfoHttp().getFullInfo();
       if(result!=null){
         setState(() {
           info=result;
           step="insertDB";
         });
+      }else{
+        
+        
       }
       isLoad=false;
     }
@@ -47,14 +107,14 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
   void insertDb()async{
     if(!isLoad){
       isLoad=true;
-      await dataBase.insertFullInfo(info,(){
+      await dataBase.insertFullInfo(info!,(){
       setState(() {
         insertedToDb=insertedToDb+1;
       });
     });
      await DataInfoStorage().setLastDate(DateTime.now().toString());
-     await DataInfoStorage().setCount(info.length.toString());
-     widget.updateSyncInfo(info.length.toString(),DateTime.now().toString());
+     await DataInfoStorage().setCount(info!.length.toString());
+     widget.updateSyncInfo(info!.length.toString(),DateTime.now().toString());
     setState(() {
 
       step="succ";
@@ -74,8 +134,13 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
   @override
   Widget build(BuildContext context) {
     String stepCounter="0";
-    if(step=="loading") stepCounter="1";
-    if(step=="insertDB") stepCounter="2";
+    if(step=="sendJurnal") stepCounter="Загрузка данных(1/2)";
+    if(step=="loadDB") stepCounter="Загрузка данных(2/2)";
+    if(step=="insertDB") stepCounter="Загрузка данных(2/2)";
+    if(step=="succ") stepCounter="Готово";
+    if(step=="errorJurnal") stepCounter="Ошибка";
+    if(step=="errorDB") stepCounter="Ошибка";
+    if(step=="completedJurnal") stepCounter="Журнал отправлен";
     return  GestureDetector(
       onTap: () {
         
@@ -83,7 +148,7 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
       child: Container(
         alignment: Alignment.center,
         child: Container(
-                height: 140,
+                height: 250,
                 alignment: Alignment.center,
                 width: MediaQuery.of(context).size.width-50,
                 decoration: BoxDecoration(
@@ -93,7 +158,7 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
                   children: [
                     SizedBox(height: 20,),
                     Text(
-                      step=="succ"?"Готово":"Загрузка данных(${stepCounter}/2)",
+                      stepCounter,
                       style: TextStyle(
                         fontSize: 22
                       ),
@@ -101,8 +166,8 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
                     Expanded(
                       child: Builder(
                         builder: (context) {
-                          if(step=="loading"){
-                            loading();
+                          if(step=="loadDB"){
+                            updateDB();
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 30),
                               child: const Row(
@@ -120,6 +185,129 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
                                     height: 30,
                                     child: Center(child: CircularProgressIndicator())
                                   )
+                                ],
+                              ),
+                            );
+                          }else if(step=="sendJurnal"){
+                            sendJurnal();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  
+                                  Text(
+                                    "Скачивание базы",
+                                    style: TextStyle(
+                                      fontSize: 18
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                    height: 30,
+                                    child: Center(child: CircularProgressIndicator())
+                                  )
+                                ],
+                              ),
+                            );
+                          }else if(step=="errorDB"){
+                            //insertDb();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              child:  Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  
+                                  SizedBox(height: 20,),
+                                  Expanded(
+                                    child: Text(
+                                      "Произошла ошибка при обновлении базы.\nБаза осталась в предыдущем виде",
+                                      style: TextStyle(
+                                        fontSize: 16
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
+                                      decoration: BoxDecoration(
+                                        color: Color.fromRGBO(59, 130, 246, 1),
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: Text(
+                                        "Закрыть",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20,)
+                                ],
+                              ),
+                            );
+                          }else if(step=="completedJurnal"){
+                            toDbStep();
+                            //insertDb();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              child:  Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  
+                                Container(
+                                  height: 80,
+                                  width: 80,
+                                  decoration: BoxDecoration(
+                                    color: Color.fromARGB(255, 97, 197, 100),
+                                    borderRadius: BorderRadius.circular(80)
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Icon(Icons.check,size: 40,color: Colors.white,),
+                                )
+                                ],
+                              ),
+                            );
+                          }else if(step=="errorJurnal"){
+                            //insertDb();
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              child:  Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  SizedBox(height: 20,),
+                                  Expanded(
+                                    child: Text(
+                                      "Произошла ошибка при отправке Журнала.\nЖурнал остался в неизменном виде",
+                                      style: TextStyle(
+                                        fontSize: 16
+                                      ),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(vertical: 10,horizontal: 30),
+                                      decoration: BoxDecoration(
+                                        color: Color.fromRGBO(59, 130, 246, 1),
+                                        borderRadius: BorderRadius.circular(10)
+                                      ),
+                                      child: Text(
+                                        "Закрыть",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20,)
                                 ],
                               ),
                             );
@@ -141,7 +329,7 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
                                     
                                     height: 30,
                                     child: Text(
-                                      "${insertedToDb}/${info.length}",
+                                      "${insertedToDb}/${info!.length}",
                                       style: TextStyle(
                                         fontSize: 18
                                       ),
@@ -158,10 +346,15 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
                                 
                                 children: [
                                   
-                                  Text(
-                                    "Обновлено ",
-                                    style: TextStyle(
-                                      fontSize: 18
+                                  Expanded(
+                                    child: Align(
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Обновлено!",
+                                        style: TextStyle(
+                                          fontSize: 18
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   GestureDetector(
@@ -182,7 +375,8 @@ class _ModalLoadingSettingsState extends State<ModalLoadingSettings> {
                                         ),
                                       ),
                                     ),
-                                  )
+                                  ),
+                                  SizedBox(height: 20,)
                                 ],
                               ),
                             );

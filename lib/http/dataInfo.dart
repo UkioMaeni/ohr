@@ -9,6 +9,7 @@ import 'package:secure_kpp/db/sqllite.dart';
 import 'package:secure_kpp/models/full_info.dart';
 import 'package:secure_kpp/store/store.dart';
 //const baseUrl="http://192.168.1.92:3005/api";
+//const baseUrlOld="http://82.97.245.161:3005/api";
 const baseUrl="http://82.97.245.161:3005/api";
 class UserChatInfo{
   String nickname;
@@ -25,7 +26,7 @@ class DataInfoHttp{
 
     Dio dio=Dio();
 
-    Future<int> addJurnalToServer()async{
+    Future<int?> addJurnalToServer()async{
       try {
         final info =await dataBase.checkJurnal();
         await dio.post(
@@ -33,19 +34,28 @@ class DataInfoHttp{
           data: {
             "jurnal":info,
             "deviceId":appStore.deviceId??"no"
-          }
+          },
+          options: Options(
+            sendTimeout: Duration(seconds: 10)
+          )
         );
         return 0;
       } catch (e) {
-        return -1;
+        return null;
       }
     }
     Future<List<FullInfo>?> getFullInfo()async{
       bool completer=false;
       
         try {
+          final responseHead = await http.head(
+            Uri.parse("$baseUrl/full"),
+            
+          ).timeout(Duration(seconds: 10));
+          log(responseHead.body);
           final response = await http.get(
             Uri.parse("$baseUrl/full"),
+            
           );
           print(response.body);
           // Response response= await dio.get(
@@ -62,7 +72,11 @@ class DataInfoHttp{
 
           // },
           
-          // );  
+          // );
+          log(response.statusCode.toString()); 
+          if(response.statusCode!=200){
+            return null;
+          } 
           List<dynamic> list=json.decode(response.body);
           //inspect(list);
           print(list.length);

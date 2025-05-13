@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -41,6 +42,7 @@ class _ScanTransportPageState extends State<ScanTransportPage> {
 
     showDialog(
       context: context, 
+      
       builder: (context) {
         return ScanSelf(currentPeople: "",);
       },
@@ -918,6 +920,7 @@ class _ScanSelfState extends State<ScanSelf> {
     return Container(
       alignment: Alignment.center,
       child: Container(
+        height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12)
@@ -967,7 +970,7 @@ class CheckPageInTransport extends StatefulWidget {
 class _CheckPageInTransportState extends State<CheckPageInTransport> {
 
 
-    bool finding=true;
+  bool finding=true;
   List<DateWithInfo> dateWithInfo=[];
   List<DateWithInfo> otherData=[];
   List<DateWithInfo> karkas=[];
@@ -983,6 +986,7 @@ class _CheckPageInTransportState extends State<CheckPageInTransport> {
     String _role=await RoleStorage().getRole();
     role=_role;
     final result= await dataBase.search(widget.documentNumber);
+    log(result.toString());
     if(result!=null){
       setState(() {
         info=result;
@@ -999,9 +1003,9 @@ class _CheckPageInTransportState extends State<CheckPageInTransport> {
   @override
   void initState() {
     if(transportStore.currentPeople!="Автомобиль"){
-      findDocument();
+      
     }
-    
+    findDocument();
     super.initState();
   }
   String fullSignal="grey";
@@ -1104,41 +1108,121 @@ class _CheckPageInTransportState extends State<CheckPageInTransport> {
 
   @override
   Widget build(BuildContext context) {
-    if(transportStore.currentPeople=="Автомобиль"){
-      return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            Container(
-                  height: 100,
-                  width: double.infinity,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: fullSignal=="green"?Color.fromRGBO(6, 203, 73, 1):fullSignal=="grey"?Colors.grey: Color.fromRGBO(241, 45, 45, 1)
-                  ),
-                  child: Text(
-                        "Пропуск № "+widget.documentNumber,
-                        style: TextStyle(
-                          fontFamily: "Inter",
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800,
-                          color: Colors.white
-                        ),
-                      ),
-                ),
-                SizedBox(height: 40,),
-                
-                actionButton("Добавить в список",Color.fromRGBO(59, 130, 246, 1),addPeople),
-                SizedBox(height: 20,),
-                actionButton("Отмена",Colors.green,(){
-                  Navigator.pop(context);
-                }),
-                SizedBox(height: 20,),
-          ],
-        ),
-      );
-    }
+    // if(transportStore.currentPeople=="Автомобиль"){
+    //   return Padding(
+    //     padding: EdgeInsets.symmetric(horizontal: 20),
+    //     child: Container(
+    //       height: 400,
+    //       width: double.infinity,
+    //       alignment: Alignment.center,
+    //       child: Builder(
+    //         builder: (context) {
+    //           if(finding){
+    //             return SizedBox(height: 50,width: 50, child: CircularProgressIndicator());
+    //           }
+    //           return Column(
+    //             children: [
+    //               Container(
+    //                   height: 220,
+    //                   width: double.infinity,
+    //                   padding: EdgeInsets.only(left: 40,top: 40),
+    //                   decoration: BoxDecoration(
+    //                     borderRadius: BorderRadius.circular(16),
+    //                     color:info!=null?Color.fromRGBO(6, 203, 73, 1):Color.fromRGBO(241, 45, 45, 1)
+    //                   ),
+    //                   child: Column(
+    //               crossAxisAlignment: CrossAxisAlignment.start,
+    //               children: [
+    //                 Text(
+    //                   info?.fullName??"Нет имени",
+    //                   style: TextStyle(
+    //                     fontFamily: "Inter",
+    //                     fontSize: 20,
+    //                     fontWeight: FontWeight.w800,
+    //                     color: Colors.white
+    //                   ),
+    //                 ),
+    //                 SizedBox(height: 12,),
+    //                 Container(
+    //                   height: 1,
+    //                   width: 222,
+    //                   color: Color.fromRGBO(213, 213, 213, 0.6),
+    //                 ),
+    //                 SizedBox(height: 12,),
+    //                 Text(
+    //                   "Пропуск № "+(widget.documentNumber??"Нет данных"),
+    //                   style: TextStyle(
+    //                     fontFamily: "Inter",
+    //                     fontSize: 20,
+    //                     fontWeight: FontWeight.w800,
+    //                     color: Colors.white
+    //                   ),
+    //                 ),
+    //                 SizedBox(height: 12,),
+    //                 Container(
+    //                   height: 1,
+    //                   width: 222,
+    //                   color: Color.fromRGBO(213, 213, 213, 0.6),
+    //                 ),
+    //                 SizedBox(height: 12,),
+    //                 Text(
+    //                   info?.organization??"Нет организации",
+    //                   style: TextStyle(
+    //                     fontFamily: "Inter",
+    //                     fontSize: 20,
+    //                     fontWeight: FontWeight.w800,
+    //                     color: Colors.white
+    //                   ),
+    //                 ),
+                  
+    //               ],
+    //                   ),
+    //                 ),
+    //                 SizedBox(height: 40,),
+                      
+    //                   actionButton("Добавить в список",Color.fromRGBO(59, 130, 246, 1),addPeople),
+    //                   SizedBox(height: 20,),
+    //                   actionButton("Отмена",Colors.green,(){
+    //                     Navigator.pop(context);
+    //                   }),
+    //                   SizedBox(height: 20,),
+    //             ],
+    //           );
+    //           return Column(
+    //             children: [
+    //               Container(
+    //                     height: 100,
+    //                     width: double.infinity,
+    //                     alignment: Alignment.center,
+    //                     decoration: BoxDecoration(
+    //                       borderRadius: BorderRadius.circular(16),
+    //                       color: fullSignal=="green"?Color.fromRGBO(6, 203, 73, 1):fullSignal=="grey"?Colors.grey: Color.fromRGBO(241, 45, 45, 1)
+    //                     ),
+    //                     child: Text(
+    //                           "Пропуск № "+widget.documentNumber,
+    //                           style: TextStyle(
+    //                             fontFamily: "Inter",
+    //                             fontSize: 20,
+    //                             fontWeight: FontWeight.w800,
+    //                             color: Colors.white
+    //                           ),
+    //                         ),
+    //                   ),
+    //                   SizedBox(height: 40,),
+                      
+    //                   actionButton("Добавить в список",Color.fromRGBO(59, 130, 246, 1),addPeople),
+    //                   SizedBox(height: 20,),
+    //                   actionButton("Отмена",Colors.green,(){
+    //                     Navigator.pop(context);
+    //                   }),
+    //                   SizedBox(height: 20,),
+    //             ],
+    //           );
+    //         }
+    //       ),
+    //     ),
+    //   );
+    // }
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),

@@ -75,8 +75,11 @@ class _CheckPageState extends State<CheckPage> {
     fullSignal="green";
 
     String passSignal="grey";
-    if(info.passStatus!=null&&info.passStatus!.trim()=="НЕ ДОПУЩЕН") passSignal="red";
-    if(info.passStatus!=null&&info.passStatus!.trim()=="ДОПУЩЕН") passSignal="green";
+    if(info.passStatus!=null&&info.passStatus!.trim()=="ДОПУЩЕН"){
+      passSignal="green";
+    }else{
+      passSignal="red";
+    }
     passStatus=DateWithInfo(date: info.passStatus??"Данные отсутствуют",name:"",signal: passSignal);
     if(passStatus!.signal=="red"){
       outputErrors.add(passStatus!);
@@ -355,7 +358,7 @@ class _CheckPageState extends State<CheckPage> {
                                               if(passStatus==null){
                                                 errorsWrite=errorsWrite+"Нет записи о допуске,";
                                               }
-                                              if(passStatus!=null&&passStatus!.date=="НЕ ДОПУЩЕН"){
+                                              if(passStatus!=null&&passStatus!.date!="ДОПУЩЕН"){
                                                 errorsWrite=errorsWrite+"Не допущен,";
                                               }
                                               final jurnal= Jurnal(
